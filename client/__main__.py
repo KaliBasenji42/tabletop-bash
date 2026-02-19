@@ -45,7 +45,14 @@ run = True # Run Main Loop
 
 selected = (0, 0) # Selected cell
 
-tableSize = (24, 24) # Table dimensions
+termSize = (0, 0) # Terminal dimensions
+
+screenWidth = 0 # Screen width, defined after window objects
+screenHeight = 0 # Screen height
+
+termTooSmall = True # Wether the terminal is too small
+
+# Game
 
 ### Functions ###
 
@@ -104,7 +111,123 @@ def readFiles():
   pass
   
 
+# output
+
+def render(stdscr): # Render screen
+  
+  stdscr.clear() # Clear
+  
+  # Backgrounds
+  
+  for window in windows:
+    window.renderBackground(stdscr)
+  
+  # Debug
+  
+  widthStr = ( # String for logging width
+    'Width: ' + str(screenWidth) +
+    ' of ' + str(termSize[0])
+  )
+  
+  heightStr = ( # String for logging height
+    'Height: ' + str(screenHeight) +
+    ' of ' + str(termSize[1])
+  )
+  
+  tickStr = ( # String for logging tick
+    'Tick: ' + str(tick)
+  )
+  
+  stdscr.addstr(contextWindow.y + 1, contextWindow.x + 1, widthStr) # Out width
+  stdscr.addstr(contextWindow.y + 2, contextWindow.x + 1, heightStr) # Out height
+  stdscr.addstr(contextWindow.y + 3, contextWindow.x + 1, tickStr) # Out tick
+  
+  stdscr.refresh() # Refresh
+  
+
 ### Classes ###
+
+class window:
+  
+  def __init__(self, x, y, width, height, title):
+    
+    # Variables
+    
+    self.x = x
+    self.y = y
+    self.width = width
+    self.height = height
+    self.title = title
+    
+  
+  def generateBackground(self): # Generate background away, set to self
+    
+    background = [] # Background array (each line)
+    row = '' # Temp row string
+    
+    row = '╭' + self.title # Title
+    
+    for i in range(self.width - len(self.title) - 2): # Top border
+      row = row + '─'
+    
+    row = row + '╮' # End top border
+    
+    background.append(row) # Add row
+    row = ''
+    
+    for i in range(self.height - 2): # Each empty row
+      
+      row = row + '│' # Left border
+      
+      for j in range(self.width - 2): # Each empty column
+        row = row + ' '
+      
+      row = row + '│' # Right border
+      
+      background.append(row) # Add row
+      row = ''
+      
+    
+    row = row + '╰' # Start bottom border
+    
+    for i in range(self.width - 2): # Bottom border
+      row = row + '─'
+    
+    row = row + '╯' # End bottom border
+    
+    background.append(row) # Add row
+    row = ''
+    
+    self.background = background # Set to self
+    
+    #logging.debug(self.title + 'Background:\n' + str(background)) # Logging
+    
+  
+  def renderBackground(self, stdscr):
+    
+    rowNum = 0 # Row iterator
+    
+    for row in self.background: # For each row
+      stdscr.addstr(self.y + rowNum, self.x, row, curses.color_pair(1)) # Add string
+      rowNum += 1 # Iterate
+    
+  
+
+# Define Windows
+
+tableWindow = window(0, 0, 64, 32, '┐Table┌')
+chatWindow = window(64, 0, 64, 16, '┐Chat┌')
+contextWindow = window(64, 16, 64, 16, '┐Context/Inventory┌')
+
+windows = [tableWindow, chatWindow, contextWindow] # List to iterate
+
+for window in windows: # Each window
+  
+  window.generateBackground() # Generate backgrounds
+  
+  screenWidth = max(screenWidth, window.x + window.width) # Screen width
+  screenHeight = max(screenHeight, window.y + window.height) # Screen height
+  
 
 ### Threads ###
 
@@ -112,8 +235,6 @@ def readFiles():
 #inputThread.start()
 
 ### Pre-Loop ###
-
-
 
 try:
   
@@ -140,6 +261,13 @@ def main(stdscr):
   stdscr.keypad(True) # Enable arrow keys
   curses.noecho() # Don't echo input
   curses.cbreak() # Auto enter input
+  curses.start_color() # Allow colors
+  curses.use_default_colors() 
+  
+  # Colors
+  
+  curses.init_pair(1, 8, -1) # Gray on black
+  curses.init_pair(2, 1, -1) # Red on black
   
   # Global Variables
   
@@ -148,6 +276,9 @@ def main(stdscr):
   global spf
   global selected
   global message
+  global termSize
+  
+  # Main Loop
   
   while run:
     
@@ -159,20 +290,51 @@ def main(stdscr):
     
     ### Rendering ###
     
+    # Terminal width
+    
     termSize = ( # Terminal size
       os.get_terminal_size().columns,
       os.get_terminal_size().lines
     )
     
-    stdscr.clear() # Clear
+    termTooSmall = False # Too small base case
     
-    stdscr.addstr(0, 0, 'Width: ' + str(termSize[0]))
-    stdscr.addstr(1, 0, 'Height: ' + str(termSize[1]))
-    stdscr.addstr(2, 0, 'Ticks: ' + str(tick))
-    stdscr.addstr(3, 0, 'Message: ' + str(message))
-    stdscr.addstr(4, 0, 'H for Help')
+    if termSize[0] < screenWidth : # Width too small
+      
+      termTooSmall = True # Set too small
+      
+      stdscr.clear() # Clear
+      
+      text = ( # Output text
+        'Terminal width too small!\n' +
+        str(termSize[0]) + ' of ' +
+        str(screenWidth) + ' columns'
+      )
+      
+      stdscr.addstr(0, 0, text, curses.color_pair(2)) # Out
+      
+      stdscr.refresh() # Refresh
+      
+    elif termSize[1] < screenHeight + 2: # Height too small
+      
+      termTooSmall = True # Set too small
+      
+      stdscr.clear() # Clear
+      
+      text = ( # Output text
+        'Terminal height too small!\n' +
+        str(termSize[1]) + ' of ' +
+        str(screenHeight + 2) + ' lines'
+      )
+      
+      stdscr.addstr(0, 0, text, curses.color_pair(2)) # Out
+      
+      stdscr.refresh() # Refresh
     
-    stdscr.refresh() # Refresh
+    else: # Everything is fine
+      
+      render(stdscr)
+      
     
     ### Key Input ###
     
@@ -183,14 +345,21 @@ def main(stdscr):
     
     if key.lower() == 'q':
       
+      if termTooSmall: # Minimal if too small
+        run = False
+        break
+      
       stdscr.nodelay(False) # Block until input
       
-      stdscr.clear() # Clear
+      contextWindow.renderBackground(stdscr) # Clear context
       
-      screen = ('Quit? (y)') # Message
+      stdscr.addstr( # Output
+        contextWindow.y + 1,
+        contextWindow.x + 1,
+        'Quit? (y)'
+      )
       
-      stdscr.addstr(0, 0, screen) # Output
-      stdscr.refresh()
+      stdscr.refresh() # Refresh
       
       if stdscr.getch() == ord('y'): # Confirm
         run = False
@@ -207,26 +376,41 @@ def main(stdscr):
     
     # Other keys
     
-    elif key.lower() == 'h': # Help
+    elif key.lower() == 'h' and not termTooSmall: # Help
       
       stdscr.nodelay(False) # Block until input
       
-      stdscr.clear() # Clear
+      text = [ # Help text array
+        'wasd: Move selected',
+        'q/Q: Quit',
+        'h/H: Help',
+        '',
+        'Press any key to exit'
+      ]
       
-      screen = ('wasd: Move selected\n' +
-                'q/Q: Quit\n' +
-                'h/H: Help\n' +
-                '\nPress any key to exit\n') # Help screen
+      contextWindow.renderBackground(stdscr) # Clear context
       
-      stdscr.addstr(0, 0, screen) # Output
-      stdscr.refresh()
+      rowNum = 0 # Row iterator
+      
+      for row in text: # Each text row
+        
+        stdscr.addstr( # Output row
+          contextWindow.y + 1 + rowNum,
+          contextWindow.x + 1,
+          row
+        )
+        
+        rowNum += 1 # Iterate row
+        
+      
+      stdscr.refresh() # Refresh
       
       stdscr.getch() # Pause
       
       stdscr.nodelay(True) # Reset to non-blocking
       
     
-    elif key.lower() == 't': # Chat
+    elif key.lower() == 't' and not termTooSmall: # Chat
       
       curses.echo() # Allow echo
       stdscr.nodelay(False) # Block until input
@@ -242,8 +426,8 @@ def main(stdscr):
     if key != '':
       
       selected = (
-        max(min(selected[0], tableSize[0] - 1), 0),
-        max(min(selected[1], tableSize[1] - 1), 0)
+        max(min(selected[0], tableWindow.width), 0),
+        max(min(selected[1], tableWindow.height), 0)
       )
       
       logging.debug('Key: ' + key) # Logging
@@ -266,6 +450,6 @@ except Exception as e:
 
 ### Post-Loop ###
 
-print('Exited')
+print('Bye 👋')
 
 #inputThread.join()
