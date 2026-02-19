@@ -268,6 +268,7 @@ def main(stdscr):
   
   curses.init_pair(1, 8, -1) # Gray on black
   curses.init_pair(2, 1, -1) # Red on black
+  curses.init_pair(3, 3, -1) # Yellow on black
   
   # Global Variables
   
@@ -290,8 +291,6 @@ def main(stdscr):
     
     ### Rendering ###
     
-    # Terminal width
-    
     termSize = ( # Terminal size
       os.get_terminal_size().columns,
       os.get_terminal_size().lines
@@ -311,11 +310,11 @@ def main(stdscr):
         str(screenWidth) + ' columns'
       )
       
-      stdscr.addstr(0, 0, text, curses.color_pair(2)) # Out
+      stdscr.addstr(0, 0, text, curses.color_pair(3)) # Out
       
       stdscr.refresh() # Refresh
       
-    elif termSize[1] < screenHeight + 2: # Height too small
+    elif termSize[1] < screenHeight: # Height too small
       
       termTooSmall = True # Set too small
       
@@ -324,16 +323,28 @@ def main(stdscr):
       text = ( # Output text
         'Terminal height too small!\n' +
         str(termSize[1]) + ' of ' +
-        str(screenHeight + 2) + ' lines'
+        str(screenHeight) + ' lines'
       )
       
-      stdscr.addstr(0, 0, text, curses.color_pair(2)) # Out
+      stdscr.addstr(0, 0, text, curses.color_pair(3)) # Out
       
       stdscr.refresh() # Refresh
     
     else: # Everything is fine
       
-      render(stdscr)
+      try: # Try because resizing terminal acts funny
+        
+        render(stdscr)
+        
+      except Exception as e:
+        
+        # Screen
+        stdscr.clear()
+        stdscr.addstr(0, 0, 'Rendering Error', curses.color_pair(2))
+        stdscr.refresh()
+        
+        logging.exception('Rendering Error') # Logging
+        
       
     
     ### Key Input ###
