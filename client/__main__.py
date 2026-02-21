@@ -11,6 +11,11 @@
 # GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # KaliBasenji42's Github: https://github.com/KaliBasenji42
 
+### NOTE ###
+
+# Add help in bottom right
+# Have it so empty send cancels
+
 ### Imports ###
 
 import curses
@@ -20,6 +25,7 @@ import random
 import socket
 import threading
 import queue
+import json
 import logging
 
 logging.basicConfig(
@@ -39,8 +45,8 @@ port = 65432 # Host Port
 clientName = '' # Player name
 
 message = '' # Chat message to send
-chatLog = [] # Array of strings, containing the chat log
-# Note: Sent as string, split on '\n' at receive
+chatLog = [] # 2D array of strings, containing the chat log
+# Note: Sent as json string
 
 # Control
 
@@ -130,15 +136,7 @@ def processMessage(message): # Processes network messages and updates game state
   if len(message) >= 5:
     if message[:5] == 'chat:': # If chat
       
-      chatLog = message[5:].split('\\;') # Array of each row
-      
-      try: chatLog.remove('') # Remove blank values
-      except: pass
-      
-      while len(chatLog) > chatWindow.height - 3: # While too long
-        chatLog.pop(0) # Remove oldest
-      
-      logging.debug('Chat Log:\n' + str(chatLog)) # Logging
+      chatLog = json.loads(message[5:]) # Load json
       
   
 
@@ -158,13 +156,82 @@ def render(stdscr): # Render screen
   for window in windows:
     window.renderBackground(stdscr)
   
-  # Chat log
+  # Chat
   
   global chatLog
   
-  for i in range(len(chatLog)):
+  chatArr = [] # Array for chat rendering
+  
+  prevLog = ['','',''] # Previous log
+  
+  for log in chatLog: # Each log
     
-    stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + 1, chatLog[i])
+    if log[2] == 'conn': # Type is connection
+      chatArr.append(log) # Append normally
+    
+    elif log[2] == 'msg': # Type is message
+      
+      if prevLog[2] != 'msg' or prevLog[0] != log[0]: # Only add header if:
+        # Previous was not a message, or different sender/UN
+        chatArr.append([log[0], '', 'msgHead']) # Message/UN header
+      
+      chatArr.append(['', log[1], 'msgCont']) # Message content
+      
+    
+    prevLog = log # Set previous log
+    
+  
+  while len(chatArr) > chatWindow.height - 3: # While too long
+    chatArr.pop(0) # Remove oldest
+  
+  for i in range(len(chatArr)): # Each line
+    
+    # Username
+    
+    UN = chatArr[i][0][:chatWindow.width - 12] # Username
+    lenUN = len(UN) # Username length
+    
+    if chatArr[i][2] == 'conn' or chatArr[i][2] == 'msgHead': # Should render UN
+      
+      stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + 1, '[') # UN '['
+      stdscr.addstr( # UN
+        chatWindow.y + i + 1, chatWindow.x + 2, 
+        UN, curses.color_pair(11) # Green
+      )
+      stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + lenUN + 2, ']:') # UN ']'
+      
+    
+    if chatArr[i][2] == 'conn': # Type is connection
+      
+      if chatArr[i][1] == 'Joined': # Join message
+        
+        stdscr.addstr(
+          chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
+          chatArr[i][1], curses.color_pair(13) # Blue
+        )
+        
+      
+      elif chatArr[i][1] == 'Left': # Left message
+        
+        stdscr.addstr(
+          chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
+          chatArr[i][1], curses.color_pair(12) # Yellow
+        )
+        
+      
+    
+    elif chatArr[i][2] == 'msgCont': # Type is message content
+      
+      stdscr.addstr( # '>'
+        chatWindow.y + i + 1, chatWindow.x + 1,
+        '>', curses.color_pair(15) # Cyan
+      )
+      
+      stdscr.addstr( # Content
+        chatWindow.y + i + 1, chatWindow.x + 3,
+        chatArr[i][1]
+      )
+      
     
   
   # Debug
@@ -186,6 +253,9 @@ def render(stdscr): # Render screen
   stdscr.addstr(contextWindow.y + 1, contextWindow.x + 1, widthStr) # Out width
   stdscr.addstr(contextWindow.y + 2, contextWindow.x + 1, heightStr) # Out height
   stdscr.addstr(contextWindow.y + 3, contextWindow.x + 1, tickStr) # Out tick
+  
+  for i in range(16): # Color
+    stdscr.addstr(i, 0, str(i+1), curses.color_pair(i+1))
   
   stdscr.refresh() # Refresh
   
@@ -255,7 +325,7 @@ class window:
     rowNum = 0 # Row iterator
     
     for row in self.background: # For each row
-      stdscr.addstr(self.y + rowNum, self.x, row, curses.color_pair(1)) # Add string
+      stdscr.addstr(self.y + rowNum, self.x, row, curses.color_pair(9)) # Add string
       rowNum += 1 # Iterate
     
   
@@ -278,7 +348,7 @@ for window in windows: # Each window
 
 class server:
   
-  def __init__(self, host, port, clientName, clientColor):
+  def __init__(self, host, port, clientName):
     
     # Variables
     
@@ -286,7 +356,6 @@ class server:
     self.disconnect = False # Wether its connected
     
     self.name = clientName # Player name
-    self.color = clientColor # Display color
     
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Socket client
     self.host = host # Host IP
@@ -406,7 +475,7 @@ clientName = input('Username: ')
 
 try:
   
-  clientServer = server(host, port, clientName, '') # Try making server
+  clientServer = server(host, port, clientName) # Try making server
   
 except Exception as e:
   
@@ -448,9 +517,8 @@ def main(stdscr):
   
   # Colors
   
-  curses.init_pair(1, 8, -1) # Gray on black
-  curses.init_pair(2, 1, -1) # Red on black
-  curses.init_pair(3, 3, -1) # Yellow on black
+  for i in range(32): # Base 4-bit colors (on black)
+    curses.init_pair(i+1, i, -1)
   
   # Global Variables
   
@@ -512,7 +580,7 @@ def main(stdscr):
         str(screenHeight) + ' lines'
       )
       
-      stdscr.addstr(0, 0, text, curses.color_pair(3)) # Out
+      stdscr.addstr(0, 0, text, curses.color_pair(12)) # Out
       
       stdscr.refresh() # Refresh
       
@@ -528,7 +596,7 @@ def main(stdscr):
         str(screenWidth) + ' columns'
       )
       
-      stdscr.addstr(0, 0, text, curses.color_pair(3)) # Out
+      stdscr.addstr(0, 0, text, curses.color_pair(12)) # Out
       
       stdscr.refresh() # Refresh
       
@@ -542,7 +610,7 @@ def main(stdscr):
         
         # Screen
         stdscr.clear()
-        stdscr.addstr(0, 0, 'Rendering Error', curses.color_pair(2))
+        stdscr.addstr(0, 0, 'Rendering Error', curses.color_pair(10))
         stdscr.refresh()
         
         logging.exception('Rendering Error') # Logging

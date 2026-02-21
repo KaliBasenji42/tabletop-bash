@@ -17,6 +17,7 @@ import random
 import socket
 import threading
 import queue
+import json
 import logging
 
 logging.basicConfig(
@@ -147,25 +148,24 @@ def generateChatLog(chatLog): # Generate string to send for chat log
   
   global usernames
   
-  out = '' # Output string
-  
-  while len(chatLog) > chatLength: # While too long
-    chatLog.pop(0) # Remove oldest
+  out = [] # Output array
   
   for log in chatLog: # Each log
     
-    if log[2] == 'conn': # Type Connection
-      out += usernames.get(log[0], log[0]) + ' ' # Add username
-      out += log[1] + '\\;' # Add message
+    outLog = ( # Output log
+      usernames.get(log[0], log[0]), # Get username
+      log[1], # Message
+      log[2], # Type
+    )
     
-    elif log[2] == 'msg': # Type Message
-      out += usernames.get(log[0], log[0]) + ':\\;> ' # Add username
-      out += log[1] + '\\;' # Add message
+    out.append(outLog) # Add
     
   
-  logging.debug('Chat log:\n' + str(chatLog))
+  outStr = json.dumps(out) # Output string
   
-  return out # Return
+  logging.debug('Chat log:\n' + outStr) # Logging
+  
+  return outStr # Return
   
 
 ### (Other) Threads ###
@@ -193,6 +193,9 @@ def serverQueueThreadFunction(): # Processes server queue messages
       if message == 'disconnect':
         
         chatLog.append((addr, 'Left', 'conn')) # Chat log
+        while len(chatLog) > chatLength: # While too long
+          chatLog.pop(0) # Remove oldest
+        
         broadcast('chat:' + generateChatLog(chatLog))
         
       
@@ -206,6 +209,10 @@ def serverQueueThreadFunction(): # Processes server queue messages
           logging.debug('Usernames:\n' + str(usernames)) # Logging
           
           chatLog.append((addr, 'Joined', 'conn')) # Chat log
+          while len(chatLog) > chatLength: # While too long
+            chatLog.pop(0) # Remove oldest
+          
+          
           broadcast('chat:' + generateChatLog(chatLog))
           
       
@@ -215,6 +222,9 @@ def serverQueueThreadFunction(): # Processes server queue messages
         if message[:4] == 'msg:': # If chat message
           
           chatLog.append((addr, message[4:], 'msg')) # Chat log
+          while len(chatLog) > chatLength: # While too long
+            chatLog.pop(0) # Remove oldest
+          
           broadcast('chat:' + generateChatLog(chatLog))
           
         
