@@ -139,8 +139,6 @@ def broadcast(message): # Send message to all connections
         
         logging.exception('Failed to send message to ' + str(conn)) # Logging
         
-        removeClient(conn) # Remove client
-        
       
     
   

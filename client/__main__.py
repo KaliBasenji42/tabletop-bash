@@ -20,7 +20,6 @@ import random
 import socket
 import threading
 import queue
-import selectors
 import logging
 
 logging.basicConfig(
@@ -45,7 +44,7 @@ chatLog = [] # Array of strings, containing the chat log
 
 # Control
 
-spf = 1/30 # Second per Frames
+spf = 1/20 # Second per Frames
 tick = 0 # Time ticker
 run = True # Run Main Loop
 frameTime = time.time() # Time frame started for spf
@@ -133,6 +132,9 @@ def processMessage(message): # Processes network messages and updates game state
       
       chatLog = message[5:].split('\\;') # Array of each row
       
+      try: chatLog.remove('') # Remove blank values
+      except: pass
+      
       while len(chatLog) > chatWindow.height - 3: # While too long
         chatLog.pop(0) # Remove oldest
       
@@ -164,12 +166,6 @@ def render(stdscr): # Render screen
     
     stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + 1, chatLog[i])
     
-  
-  stdscr.addstr( # Cursor
-    chatWindow.y + chatWindow.height - 2,
-    chatWindow.x + 1,
-    '> '
-  )
   
   # Debug
   
@@ -300,7 +296,7 @@ class server:
     # Connect
     
     self.sock.connect(self.addr)
-    self.sock.setblocking(True) # Blocking
+    self.sock.settimeout(1) # Block for 1 second
     
     # Initial Message
     
@@ -324,6 +320,9 @@ class server:
       self.sock.sendall((message + '\n').encode())
       
     except Exception:
+      
+      self.disconnect = True # Disconnect
+      self.run = False
       
       logging.exception("Send Error")
       
@@ -364,7 +363,11 @@ class server:
           logging.debug('Queue Size: ' + str(self.queue.qsize())) # Logging
           
         
-      except OSError as e:
+      except socket.timeout:
+        
+        pass # Ignore if timed out
+        
+      except Exception as e:
         
         self.disconnect = True
         
@@ -378,11 +381,6 @@ class server:
   def close(self): # Close connection
     
     self.run = False # Stop recv loop
-    
-    try:
-      self.sock.shutdown(socket.SHUT_RDWR) # Force stop recv loop
-    except:
-      pass
     
     self.sock.close() # Close
     
@@ -628,6 +626,12 @@ def main(stdscr):
       
       curses.echo() # Allow echo
       stdscr.nodelay(False) # Block until input
+      
+      stdscr.addstr( # Cursor
+        chatWindow.y + chatWindow.height - 2,
+        chatWindow.x + 1,
+        '> '
+      )
       
       message = stdscr.getstr( # Get message
         chatWindow.y + chatWindow.height - 2,
