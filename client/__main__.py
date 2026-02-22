@@ -51,7 +51,7 @@ tick = 0 # Time ticker
 run = True # Run Main Loop
 frameTime = time.time() # Time frame started for spf
 
-selected = (0, 0) # Selected cell
+selected = (0, 0) # Selected cell (y, x)
 
 termSize = (0, 0) # Terminal dimensions (Lines/Height, Columns/Width)
 screenWidth = 0 # Screen width, defined after window objects
@@ -63,6 +63,9 @@ termTooSmall = True # Wether the terminal is too small
 
 tableGrid = [] # Array of strings representing the look of the table
 tableState = [] # Array of objects on the table (sent from server, updated in thread)
+
+inventoryGrid = [] # Array of strings representing the look of the inventory
+inventoryState = [] # Array of objects in inventory
 
 ### Functions ###
 
@@ -184,7 +187,7 @@ def render(stdscr): # Render screen
     
     # Username
     
-    UN = chatArr[i][0][:chatWindow.width - 12] # Username
+    UN = chatArr[i][0][:chatWindow.width - (len(chatArr[i][1]) + 6)] # Username
     lenUN = len(UN) # Username length
     
     # Render UN?
@@ -245,11 +248,17 @@ def render(stdscr): # Render screen
       
       stdscr.addstr(
         chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
-        '*Buzzer* at ' + chatArr[i][1], curses.color_pair(10) # Red
+        chatArr[i][1], curses.color_pair(10) # Red
       )
       
     
   # Context
+  
+  # Table
+  
+  global slected
+  
+  stdscr.chgat(selected[0] + 1, selected[1] + 1, 1, curses.A_REVERSE)
   
   # Debug
   
@@ -360,6 +369,10 @@ for window in windows: # Each window
   screenWidth = max(screenWidth, window.x + window.width) # Screen width
   screenHeight = max(screenHeight, window.y + window.height) # Screen height
   
+
+# Item
+
+
 
 # Network
 
@@ -487,9 +500,9 @@ class server:
 # Title
 
 title = """
-▄▄▄▄  ▄▄▄▄  ▄▄▄▄  ▖     ▄▄▄▄  ═⍐═  ╔⍐╗  ╔═╗    ┌─╮  ╭─╮  ╭─╴  ╷ ╷
+▄▄▄▄  ▄▄▄▄  ▄▄▄▄  ▖     ▄▄▄▄  ═⍐═  ╔⍐╗  ╔═╗    ┬─╮  ╭─╮  ╭─╴  ╷ ╷
  ▐▌   ▙▄▄▟  ▙▄▄▟  ▌     ▙▄▄▄   ║   ⍐ ⍐  ⍐═╝    ├─┤  ├─┤  ╰─╮  ├─┤
- ▟▙   ▌  ▐  ▙▄▄▟  ▙▄▄▄  ▙▄▄▄   ║   ╚⍐╝  ║      └─╯  ╵ ╵  ╶─╯  ╵ ╵
+ ▟▙   ▌  ▐  ▙▄▄▟  ▙▄▄▄  ▙▄▄▄   ║   ╚⍐╝  ║      ┴─╯  ╵ ╵  ╶─╯  ╵ ╵
 
 <===### Client ###===>
 
@@ -689,10 +702,10 @@ def main(stdscr):
     
     # Movements
     
-    elif key == ord('d'): selected = (selected[0] + 1, selected[1])
-    elif key == ord('a'): selected = (selected[0] - 1, selected[1])
-    elif key == ord('s'): selected = (selected[0], selected[1] + 1)
-    elif key == ord('w'): selected = (selected[0], selected[1] - 1)
+    elif key == ord('s'): selected = (selected[0] + 1, selected[1])
+    elif key == ord('w'): selected = (selected[0] - 1, selected[1])
+    elif key == ord('d'): selected = (selected[0], selected[1] + 1)
+    elif key == ord('a'): selected = (selected[0], selected[1] - 1)
     
     # Other keys
     
@@ -773,7 +786,7 @@ def main(stdscr):
         msStr
       )
       
-      clientServer.send('buzz:' + timeStr) # Send
+      clientServer.send('buzz:*Buzzer* at ' + timeStr) # Send
       
       logging.debug('Buzzer at ' + str(timeNow)) # Logging
       
@@ -826,8 +839,8 @@ def main(stdscr):
       # Selected position
       
       selected = (
-        max(min(selected[0], tableWindow.width), 0),
-        max(min(selected[1], tableWindow.height), 0)
+        max(min(selected[0], tableWindow.height - 3), 0),
+        max(min(selected[1], tableWindow.width - 3), 0)
       )
       
       logging.debug('Selected: ' + str(selected))
