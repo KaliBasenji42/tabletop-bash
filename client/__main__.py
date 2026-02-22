@@ -1,4 +1,4 @@
-# Tabletop Bash
+# Tabletop Bash - Client
 # Copyright (C) 2026 KaliBasenji42
 
 # This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
@@ -11,16 +11,12 @@
 # GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # KaliBasenji42's Github: https://github.com/KaliBasenji42
 
-### NOTE ###
-
-# Add help in bottom right
-# Have it so empty send cancels
-
 ### Imports ###
 
 import curses
 import os
 import time
+import datetime
 import random
 import socket
 import threading
@@ -166,7 +162,7 @@ def render(stdscr): # Render screen
   
   for log in chatLog: # Each log
     
-    if log[2] == 'conn': # Type is connection
+    if log[2] == 'conn' or log[2] == 'buzz': # Type is connection or buzzer
       chatArr.append(log) # Append normally
     
     elif log[2] == 'msg': # Type is message
@@ -191,7 +187,22 @@ def render(stdscr): # Render screen
     UN = chatArr[i][0][:chatWindow.width - 12] # Username
     lenUN = len(UN) # Username length
     
-    if chatArr[i][2] == 'conn' or chatArr[i][2] == 'msgHead': # Should render UN
+    # Render UN?
+    
+    if chatArr[i][2] == 'msgCont': # Type is message content (no UN)
+      
+      stdscr.addstr( # '>'
+        chatWindow.y + i + 1, chatWindow.x + 1,
+        '>', curses.color_pair(15) # Cyan
+      )
+      
+      stdscr.addstr( # Content
+        chatWindow.y + i + 1, chatWindow.x + 3,
+        chatArr[i][1]
+      )
+      
+    
+    else: # Not message content (render UN)
       
       stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + 1, '[') # UN '['
       stdscr.addstr( # UN
@@ -200,6 +211,8 @@ def render(stdscr): # Render screen
       )
       stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + lenUN + 2, ']:') # UN ']'
       
+    
+    # Message content that is not a message
     
     if chatArr[i][2] == 'conn': # Type is connection
       
@@ -219,20 +232,24 @@ def render(stdscr): # Render screen
         )
         
       
-    
-    elif chatArr[i][2] == 'msgCont': # Type is message content
-      
-      stdscr.addstr( # '>'
-        chatWindow.y + i + 1, chatWindow.x + 1,
-        '>', curses.color_pair(15) # Cyan
-      )
-      
-      stdscr.addstr( # Content
-        chatWindow.y + i + 1, chatWindow.x + 3,
-        chatArr[i][1]
-      )
+      elif chatArr[i][1] == 'Changed UN': # Changed username
+        
+        stdscr.addstr(
+          chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
+          chatArr[i][1], curses.color_pair(14) # Magenta
+        )
+        
       
     
+    elif chatArr[i][2] == 'buzz': # Type is buzzer
+      
+      stdscr.addstr(
+        chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
+        '*Buzzer* at ' + chatArr[i][1], curses.color_pair(10) # Red
+      )
+      
+    
+  # Context
   
   # Debug
   
@@ -467,11 +484,34 @@ class server:
 
 ### Pre-Loop ###
 
+# Title
+
+title = """
+▄▄▄▄  ▄▄▄▄  ▄▄▄▄  ▖     ▄▄▄▄  ═⍐═  ╔⍐╗  ╔═╗    ┌─╮  ╭─╮  ╭─╴  ╷ ╷
+ ▐▌   ▙▄▄▟  ▙▄▄▟  ▌     ▙▄▄▄   ║   ⍐ ⍐  ⍐═╝    ├─┤  ├─┤  ╰─╮  ├─┤
+ ▟▙   ▌  ▐  ▙▄▄▟  ▙▄▄▄  ▙▄▄▄   ║   ╚⍐╝  ║      └─╯  ╵ ╵  ╶─╯  ╵ ╵
+
+<===### Client ###===>
+
+Copyright (C) 2026 KaliBasenji42
+Tabletop Bash comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it under certain conditions.
+
+License: ./LICENSE.md
+GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+KaliBasenji42's Github: https://github.com/KaliBasenji42
+
+NOTE: Press 'h' for help menu once connected
+"""
+
+print(title)
+
 # Server
 
-host = input('Host IP: ') # Inputs
+host = input('Connect to Host:\n\nHost IP: ') # Inputs
 port = strToPosInt(input('Port: '))
 clientName = input('Username: ')
+print()
 
 try:
   
@@ -517,7 +557,7 @@ def main(stdscr):
   
   # Colors
   
-  for i in range(32): # Base 4-bit colors (on black)
+  for i in range(16): # Base 4-bit colors (on black)
     curses.init_pair(i+1, i, -1)
   
   # Global Variables
@@ -662,8 +702,12 @@ def main(stdscr):
       
       text = [ # Help text array
         'wasd: Move selected',
+        'e: Select',
         'q: Quit',
         'h: Help',
+        't: Chat (enter nothing to cancel)',
+        'b: Buzzer',
+        'u: Change username',
         '',
         'Press any key to exit'
       ]
@@ -707,7 +751,64 @@ def main(stdscr):
         chatWindow.width - 4
       ).decode()
       
-      clientServer.send('msg:' + message) # Send
+      if message != '': clientServer.send('msg:' + message) # Send
+      
+      curses.noecho() # Reset to no echo
+      stdscr.nodelay(True) # Reset to non-blocking
+      
+    
+    elif key == ord('b') and not termTooSmall: # Buzzer
+      
+      curses.beep() # Beep
+      
+      timeNow = datetime.datetime.now() # Current time down to ms
+      
+      msStr = str(timeNow.microsecond) # Micro second string
+      while len(msStr) < 6: # While too short
+        msStr = '0' + msStr # Add '0'
+      
+      timeStr = ( # String to send
+        str(timeNow.minute) + ':' +
+        str(timeNow.second) + '.' +
+        msStr
+      )
+      
+      clientServer.send('buzz:' + timeStr) # Send
+      
+      logging.debug('Buzzer at ' + str(timeNow)) # Logging
+      
+    
+    elif key == ord('u') and not termTooSmall: # Username
+      
+      curses.echo() # Allow echo
+      stdscr.nodelay(False) # Block until input
+      
+      contextWindow.renderBackground(stdscr) # Clear context
+      
+      stdscr.addstr( # Header
+        contextWindow.y + 1,
+        contextWindow.x + 1,
+        'Change Username'
+      )
+      
+      stdscr.addstr( # Original UN
+        contextWindow.y + 2,
+        contextWindow.x + 1,
+        ('Originally: "' + clientServer.name + '"')[:contextWindow.width - 2]
+      )
+      
+      stdscr.addstr( # Cursor
+        contextWindow.y + 3,
+        contextWindow.x + 1,
+        '> '
+      )
+      
+      clientServer.name = stdscr.getstr( # Get message
+        contextWindow.y + 3,
+        contextWindow.x + 3
+      ).decode()
+      
+      clientServer.send('un:' + clientServer.name) # Send
       
       curses.noecho() # Reset to no echo
       stdscr.nodelay(True) # Reset to non-blocking

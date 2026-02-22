@@ -1,4 +1,4 @@
-# Tabletop Bash
+# Tabletop Bash - Host
 # Copyright (C) 2026 KaliBasenji42
 
 # This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; version 2 of the License.
@@ -216,6 +216,23 @@ def serverQueueThreadFunction(): # Processes server queue messages
           broadcast('chat:' + generateChatLog(chatLog))
           
       
+      # Change Username
+      
+      if len(message) >= 3:
+        if message[:3] == 'un:': # If UN change
+          
+          usernames[addr] = message[3:] # Set username
+          
+          logging.debug('Usernames:\n' + str(usernames)) # Logging
+          
+          chatLog.append((addr, 'Changed UN', 'conn')) # Chat log
+          while len(chatLog) > chatLength: # While too long
+            chatLog.pop(0) # Remove oldest
+          
+          
+          broadcast('chat:' + generateChatLog(chatLog))
+          
+      
       # Chat Message
       
       if len(message) >= 4:
@@ -229,6 +246,18 @@ def serverQueueThreadFunction(): # Processes server queue messages
           
         
       
+      # Buzzer
+      
+      if len(message) >= 5:
+        if message[:5] == 'buzz:': # If buzzer
+          
+          chatLog.append((addr, message[5:], 'buzz')) # Chat log
+          while len(chatLog) > chatLength: # While too long
+            chatLog.pop(0) # Remove oldest
+          
+          broadcast('chat:' + generateChatLog(chatLog))
+          
+      
     except queue.Empty:
       continue # Continue if empty
     
@@ -240,6 +269,26 @@ serverQueueThread = threading.Thread(target = serverQueueThreadFunction, daemon 
 serverQueueThread.start() # Start
 
 ### Pre-Loop ###
+
+# Title
+
+title = """
+▄▄▄▄  ▄▄▄▄  ▄▄▄▄  ▖     ▄▄▄▄  ═⍐═  ╔⍐╗  ╔═╗    ┌─╮  ╭─╮  ╭─╴  ╷ ╷
+ ▐▌   ▙▄▄▟  ▙▄▄▟  ▌     ▙▄▄▄   ║   ⍐ ⍐  ⍐═╝    ├─┤  ├─┤  ╰─╮  ├─┤
+ ▟▙   ▌  ▐  ▙▄▄▟  ▙▄▄▄  ▙▄▄▄   ║   ╚⍐╝  ║      └─╯  ╵ ╵  ╶─╯  ╵ ╵
+
+<===### Host ###===>
+
+Copyright (C) 2026 KaliBasenji42
+Tabletop Bash comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it under certain conditions.
+
+License: ./LICENSE.md
+GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+KaliBasenji42's Github: https://github.com/KaliBasenji42
+"""
+
+print(title)
 
 # Input
 
@@ -350,7 +399,7 @@ try:
 except KeyboardInterrupt: # Shutdown
   
   logging.info('Keyboard Interrupt') # Logging
-  print('\033[92mShutting Down\033[0m')
+  print('\033[92m\nShutting Down\033[0m')
   
   run.clear() # Stop threads
   
