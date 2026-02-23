@@ -33,6 +33,12 @@ logging.debug('New Run: ')
 
 ### Variables ###
 
+# Files
+
+configPath = 'config.json' # Path to config file
+
+customRendering = {} # Custom rendering dictionary
+
 # Server
 
 host = '127.0.0.1' # Host IP
@@ -119,9 +125,19 @@ def roll(arr, new): # Have an array roll in a new value, removing the first
 
 # File
 
-def readFiles():
+def readConfig(): # Read config file
   
-  pass
+  # Variables
+  
+  global customRendering
+  
+  # Read Files
+  
+  with open(configPath, 'r') as file: data = json.loads(file.read())
+  
+  # Set variables
+  
+  customRendering = data['customRendering']
   
 
 # Network
@@ -495,9 +511,9 @@ class server:
 # Title
 
 title = """
-▄▄▄▄  ▄▄▄▄  ▄▄▄▄  ▖     ▄▄▄▄  ═⍐═  ╔⍐╗  ╔═╗    ┬─╮  ╭─╮  ╭─╴  ╷ ╷
- ▐▌   ▙▄▄▟  ▙▄▄▟  ▌     ▙▄▄▄   ║   ⍐ ⍐  ⍐═╝    ├─┤  ├─┤  ╰─╮  ├─┤
- ▟▙   ▌  ▐  ▙▄▄▟  ▙▄▄▄  ▙▄▄▄   ║   ╚⍐╝  ║      ┴─╯  ╵ ╵  ╶─╯  ╵ ╵
+███▀███▀███▀▛▀▀▀███ ═⍐═ ╔⍐╗ ╔═╗   ┬─╮ ╭─╮ ╭─╴ ╷ ╷
+ █  ▙▄▟ ▙▄▟ ▌   ▙▄▄  ║  ⍐ ⍐ ⍐═╝   ├─┤ ├─┤ ╰─╮ ├─┤
+ █  ▌ ▐ ▙▄▟ ▙▄▄ ▙▄▄  ║  ╚⍐╝ ║     ┴─╯ ╵ ╵ ╶─╯ ╵ ╵
 
 <===### Client ###===>
 
@@ -534,11 +550,11 @@ except Exception as e:
   quit() # Quit
   
 
-# Config
+# Read Files
 
 try:
   
-  readFiles() # Try reading files
+  readConfig()
   
 except Exception as e:
   

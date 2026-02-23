@@ -29,10 +29,21 @@ logging.debug('New Run: ')
 
 ### Variables ###
 
-# Server
+# Files
+
+configPath = 'config.json' # Path to config file
+
+# Server Config
 
 host = '127.0.0.1' # Host IP
 port = 65432 # Host Port
+
+enableWhitelist = False # Wether to use whitelist or blacklist
+whitelist = [] # Whitelist
+blacklist = [] # Blacklist
+managers = [] # Whitelist of managers
+
+# Server
 
 clients = [] # Array of client connections
 clientsLock = threading.Lock() # Thread lock for clients 
@@ -105,6 +116,35 @@ def roll(arr, new): # Have an array roll in a new value, removing the first
   return out
   
 
+# File
+
+def readConfig(): # Read config file
+  
+  # Variables
+  
+  global host
+  global port
+  
+  global enableWhitelist
+  global whitelist
+  global blacklist
+  global managers
+  
+  # Read Files
+  
+  with open(configPath, 'r') as file: data = json.loads(file.read())
+  
+  # Set variables
+  
+  host = data['IP']
+  port = data['port']
+  
+  enableWhitelist = data['enableWhitelist']
+  whitelist = data['whitelist']
+  blacklist = data['blacklist']
+  managers = data['managers']
+  
+
 # Network
 
 def addClient(client): # Add client to clients array
@@ -138,6 +178,8 @@ def broadcast(message): # Send message to all connections
         
         conn[0].sendall((message + '\n').encode()) # Send
         
+        logging.info('Broadcast: ' + message) # Logging
+        
       except Exception as e:
         
         logging.exception('Failed to send message to ' + str(conn)) # Logging
@@ -148,19 +190,18 @@ def broadcast(message): # Send message to all connections
 
 def sendAddr(message, addr): # Send message to specific address
   
-  logging.debug('Send Target: ' + addr)
-  
   with clientsLock:
     
     for conn in clients.copy(): # For each client (copy to avoid disconnect error)
       
       try:
         
-        logging.debug('Send Connection Addr: ' + conn[1])
-        
         if conn[1] == addr: # If address matches
+          
           conn[0].sendall((message + '\n').encode()) # Send
-        
+          
+          logging.info('Send Addr to: ' + addr + ': ' + message) # Logging
+          
         
       except Exception as e:
         
@@ -189,8 +230,6 @@ def generateChatLog(chatLog): # Generate string to send for chat log
   
   outStr = json.dumps(out) # Output string
   
-  logging.debug('Chat log:\n' + outStr) # Logging
-  
   return outStr # Return
   
 
@@ -201,6 +240,8 @@ def generateChatLog(chatLog): # Generate string to send for chat log
 def serverQueueThreadFunction(): # Processes server queue messages
   
   # Pre-Loop
+  
+  global managers
   
   global run
   global chatLog
@@ -230,11 +271,14 @@ def serverQueueThreadFunction(): # Processes server queue messages
       
       if message == 'kill': # Kill
         
-        run.clear() # Kill
-        
-        print('Kill signal from manager') # Print
-        
-        logging.info('Kill signal from manager') # Logging
+        if addr.split(':')[0] in managers: # If sent from manager
+          
+          run.clear() # Kill
+          
+          print('Kill signal from manager ' + addr) # Print
+          
+          logging.info('Kill signal from manager ' + addr) # Logging
+          
         
       
       # Join
@@ -246,7 +290,8 @@ def serverQueueThreadFunction(): # Processes server queue messages
           
           print(addr + ' is "' + message[5:] + '"') # Print
           
-          logging.debug('Usernames:\n' + str(usernames)) # Logging
+          logging.info(addr + ' is "' + message[5:] + '"') # Logging
+          logging.debug('Usernames:\n' + str(usernames))
           
           chatLog.append((addr, 'Joined', 'conn')) # Chat log
           while len(chatLog) > chatLength: # While too long
@@ -265,7 +310,8 @@ def serverQueueThreadFunction(): # Processes server queue messages
           
           print(addr + ' is "' + message[3:] + '"') # Print
           
-          logging.debug('Usernames:\n' + str(usernames)) # Logging
+          logging.info(addr + ' is "' + message[3:] + '"') # Logging
+          logging.debug('Usernames:\n' + str(usernames))
           
           chatLog.append((addr, 'Changed UN', 'conn')) # Chat log
           while len(chatLog) > chatLength: # While too long
@@ -315,9 +361,9 @@ serverQueueThread.start() # Start
 # Title
 
 title = """
-▄▄▄▄  ▄▄▄▄  ▄▄▄▄  ▖     ▄▄▄▄  ═⍐═  ╔⍐╗  ╔═╗    ┬─╮  ╭─╮  ╭─╴  ╷ ╷
- ▐▌   ▙▄▄▟  ▙▄▄▟  ▌     ▙▄▄▄   ║   ⍐ ⍐  ⍐═╝    ├─┤  ├─┤  ╰─╮  ├─┤
- ▟▙   ▌  ▐  ▙▄▄▟  ▙▄▄▄  ▙▄▄▄   ║   ╚⍐╝  ║      ┴─╯  ╵ ╵  ╶─╯  ╵ ╵
+███▀███▀███▀▛▀▀▀███ ═⍐═ ╔⍐╗ ╔═╗   ┬─╮ ╭─╮ ╭─╴ ╷ ╷
+ █  ▙▄▟ ▙▄▟ ▌   ▙▄▄  ║  ⍐ ⍐ ⍐═╝   ├─┤ ├─┤ ╰─╮ ├─┤
+ █  ▌ ▐ ▙▄▟ ▙▄▄ ▙▄▄  ║  ╚⍐╝ ║     ┴─╯ ╵ ╵ ╶─╯ ╵ ╵
 
 <===### Host ###===>
 
@@ -332,10 +378,19 @@ KaliBasenji42's Github: https://github.com/KaliBasenji42
 
 print(title)
 
-# Input
+# Read Files
 
-host = input('Host IP: ')
-port = strToPosInt(input('Port: '))
+try:
+  
+  readConfig()
+  
+except Exception as e:
+  
+  logging.exception('File Read Error') # Logging
+  print('\033[97;41mFile Read Error\033[0m\n' + str(e))
+  
+  quit() # Exit
+  
 
 # Socket
 
@@ -355,6 +410,8 @@ except Exception as e:
   logging.exception('Socket Bind Error') # Logging
   print('\033[97;41mSocket Bind Error\033[0m\n' + str(e))
   
+  quit() # Exit
+  
 
 ### Main Loop ###
 
@@ -368,8 +425,8 @@ def clientThreadFunction(conn, addr):
   
   addClient((conn, addrStr)) # Add to clients array
   
-  print('Connected to: ' + str(addrStr)) # Logging
-  logging.info('Connected to: ' + str(addrStr))
+  logging.info('Connected to: ' + addrStr) # Logging
+  print('Connected to: ' + addrStr)
   
   conn.sendall('Welcome!\n'.encode()) # Test welcome message
   
@@ -389,8 +446,8 @@ def clientThreadFunction(conn, addr):
       
       if not data:
         
-        print('Disconnected from: ' + strAddr + ' No data/clean') # Logging
-        logging.info('Disconnected from: ' + strAddr + ' No data/clean')
+        logging.info('Disconnected from: ' + addrStr + ' No data/clean') # Logging
+        print('Disconnected from: ' + addrStr + ' No data/clean')
         
         break # Break
         
@@ -405,7 +462,7 @@ def clientThreadFunction(conn, addr):
         
         serverQueue.put((addrStr, message)) # Push to queue
         
-        logging.debug('Message from ' + str(addr) + ': ' + message) # Logging
+        logging.debug('Message from ' + addrStr + ': ' + message) # Logging
         
       
       # Process
@@ -413,8 +470,8 @@ def clientThreadFunction(conn, addr):
       
     except Exception as e:
       
-      print('Disconnected from: ' + strAddr + '\n' + str(e)) # Logging
-      logging.info('Disconnected from: ' + strAddr + '\n' + str(e))
+      logging.info('Disconnected from: ' + addrStr + '\n' + str(e)) # Logging
+      print('Disconnected from: ' + addrStr + '\n' + str(e))
       
       break # Exit loop
       
@@ -457,4 +514,5 @@ serverQueueThread.join(10) # Join
 
 sock.close() # Close socket
 
+logging.info('Server Shutdown') # Logging
 print('Good Bye!')

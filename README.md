@@ -11,9 +11,9 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 ## Host
 
 1. On the host device move to `./host/`
-2. Run `__main__` (type `./__main__` in terminal)
-3. Input your device IP and Port
+2. Configure your device IP and Port in `config.json`
     - Ensure your clients can access this IP and Port, you may need to disable your firewall on the given port.
+3. Run `__main__` (type `./__main__` in terminal)
 4. Run `manager` (in a new terminal window/device) to send manage the server
     - See [Network](#network) for more details
 5. Press \[ctrl + c\] to quit
@@ -29,7 +29,41 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 
 # Client UI
 
-# Config Files
+# Data Files
+
+## Configs
+
+Config files `config.json` in their respective folders.  
+
+### Host
+
+```JSON
+{
+  "IP and Port": "comment", // In file comments (JSONs don't allow comments)
+  "IP": "127.0.0.1", // Host IP
+  "port": 65432, // Host Port
+  
+  "Enable Whitelist (not Blacklist)": "comment",
+  "enableWhitelist": false, // Wether to use whitelist or blacklist
+  
+  "Whitelist, list IPs": "comment",
+  "whitelist": [ // List of IPs to whitelist
+    "127.0.0.1"
+  ],
+  
+  "Black;ist, list IPs": "comment",
+  "blacklist": [ // List of IPs to blacklist
+    
+  ],
+  
+  "Allowed managers (whitelist), list IPs": "comment",
+  "managers": [ // List of IPs to whitelist for managers
+    "127.0.0.1"
+  ]
+}
+```
+
+### Client
 
 # Network
 
@@ -100,15 +134,11 @@ Updated chat log, sets `chatLog` to *data*.
 ```JSON
 [
   [
-    <username>,
-    <message>,
-    <type>,
+    "username", // Username of the sender/subject client
+    "message", // Message content
+    "type", // Type of message (EX: "msg" or "buzz")
   ],
-  <...>
+  ...
 ]
 ```
-*username* being the sender.  
-*message* being the message content (EX: "Left").  
-*type* being the message type (EX: "conn").  
-
 > The chat log sent is at most 20 in length.  

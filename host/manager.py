@@ -102,7 +102,7 @@ class server:
     self.run = True # Loop control
     self.disconnect = False # Wether its connected
     
-    self.name = 'MANAGER: ' + clientName # Manager name
+    self.name = 'MANAGER ' + clientName # Manager name
     
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Socket client
     self.host = host # Host IP
@@ -212,9 +212,9 @@ class server:
 # Title
 
 title = """
-▄▄▄▄  ▄▄▄▄  ▄▄▄▄  ▖     ▄▄▄▄  ═⍐═  ╔⍐╗  ╔═╗    ┬─╮  ╭─╮  ╭─╴  ╷ ╷
- ▐▌   ▙▄▄▟  ▙▄▄▟  ▌     ▙▄▄▄   ║   ⍐ ⍐  ⍐═╝    ├─┤  ├─┤  ╰─╮  ├─┤
- ▟▙   ▌  ▐  ▙▄▄▟  ▙▄▄▄  ▙▄▄▄   ║   ╚⍐╝  ║      ┴─╯  ╵ ╵  ╶─╯  ╵ ╵
+███▀███▀███▀▛▀▀▀███ ═⍐═ ╔⍐╗ ╔═╗   ┬─╮ ╭─╮ ╭─╴ ╷ ╷
+ █  ▙▄▟ ▙▄▟ ▌   ▙▄▄  ║  ⍐ ⍐ ⍐═╝   ├─┤ ├─┤ ╰─╮ ├─┤
+ █  ▌ ▐ ▙▄▟ ▙▄▄ ▙▄▄  ║  ╚⍐╝ ║     ┴─╯ ╵ ╵ ╶─╯ ╵ ╵
 
 <===### Host Manager ###===>
 

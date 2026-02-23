@@ -1,0 +1,23 @@
+{
+  "IP and Port": "comment",
+  "IP": "10.0.0.234",
+  "port": 8000,
+  
+  "Enable Whitelist (not Blacklist)": "comment",
+  "enableWhitelist": false,
+  
+  "Whitelist, list IPs": "comment",
+  "whitelist": [
+    "10.0.0.234"
+  ],
+  
+  "Black;ist, list IPs": "comment",
+  "blacklist": [
+    
+  ],
+  
+  "Allowed managers (whitelist), list IPs": "comment",
+  "managers": [
+    "10.0.0.234"
+  ]
+}
