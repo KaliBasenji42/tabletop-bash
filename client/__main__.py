@@ -27,7 +27,7 @@ import logging
 logging.basicConfig(
   level=logging.DEBUG,
   format='%(asctime)s | %(levelname)s: %(message)s',
-  filename='app.log'
+  filename='client.log'
 )
 logging.debug('New Run: ')
 
@@ -489,11 +489,6 @@ class server:
     logging.debug('Closed server') # Logging
     
   
-
-### Threads ###
-
-#inputThread = threading.Thread(target=inputThreadFunc)
-#inputThread.start()
 
 ### Pre-Loop ###
 

@@ -23,7 +23,7 @@ import logging
 logging.basicConfig(
   level=logging.DEBUG,
   format='%(asctime)s | %(levelname)s: %(message)s',
-  filename='app.log'
+  filename='host.log'
 )
 logging.debug('New Run: ')
 
@@ -107,21 +107,23 @@ def roll(arr, new): # Have an array roll in a new value, removing the first
 
 # Network
 
-def addClient(conn): # Add client to clients array
+def addClient(client): # Add client to clients array
+  # Client is form (conn, addr)
   
   with clientsLock:
     
-    clients.append(conn) # Add
+    clients.append(client) # Add
     
   
 
-def removeClient(conn): # Remove client from clients array
+def removeClient(client): # Remove client from clients array
+  # Client is form (conn, addr)
   
   with clientsLock:
     
-    if conn in clients: # If it exists
+    if client in clients: # If it exists
       
-      clients.remove(conn) # Remove
+      clients.remove(client) # Remove
       
     
   
@@ -134,7 +136,31 @@ def broadcast(message): # Send message to all connections
       
       try:
         
-        conn.sendall((message + '\n').encode()) # Send
+        conn[0].sendall((message + '\n').encode()) # Send
+        
+      except Exception as e:
+        
+        logging.exception('Failed to send message to ' + str(conn)) # Logging
+        
+      
+    
+  
+
+def sendAddr(message, addr): # Send message to specific address
+  
+  logging.debug('Send Target: ' + addr)
+  
+  with clientsLock:
+    
+    for conn in clients.copy(): # For each client (copy to avoid disconnect error)
+      
+      try:
+        
+        logging.debug('Send Connection Addr: ' + conn[1])
+        
+        if conn[1] == addr: # If address matches
+          conn[0].sendall((message + '\n').encode()) # Send
+        
         
       except Exception as e:
         
@@ -176,6 +202,7 @@ def serverQueueThreadFunction(): # Processes server queue messages
   
   # Pre-Loop
   
+  global run
   global chatLog
   
   # Main Loop
@@ -199,12 +226,25 @@ def serverQueueThreadFunction(): # Processes server queue messages
         broadcast('chat:' + generateChatLog(chatLog))
         
       
+      # Manager
+      
+      if message == 'kill': # Kill
+        
+        run.clear() # Kill
+        
+        print('Kill signal from manager') # Print
+        
+        logging.info('Kill signal from manager') # Logging
+        
+      
       # Join
       
       if len(message) >= 5:
         if message[:5] == 'join:': # If join
           
           usernames[addr] = message[5:] # Add username
+          
+          print(addr + ' is "' + message[5:] + '"') # Print
           
           logging.debug('Usernames:\n' + str(usernames)) # Logging
           
@@ -222,6 +262,8 @@ def serverQueueThreadFunction(): # Processes server queue messages
         if message[:3] == 'un:': # If UN change
           
           usernames[addr] = message[3:] # Set username
+          
+          print(addr + ' is "' + message[3:] + '"') # Print
           
           logging.debug('Usernames:\n' + str(usernames)) # Logging
           
@@ -303,9 +345,10 @@ try:
   
   sock.bind((host, port)) # Try bond
   sock.listen(5) # Listen for incoming connections
+  sock.settimeout(1) # Timeout
   
   logging.info('Server Started') # Logging
-  print('Server Started!')
+  print('Server Started!\n')
   
 except Exception as e:
   
@@ -321,16 +364,16 @@ def clientThreadFunction(conn, addr):
   
   # Pre-Loop
   
-  addClient(conn) # Add to clients array
+  addrStr = addr[0] + ':' + str(addr[1]) # Address as string
   
-  print('Connected to: ' + str(addr)) # Logging
-  logging.info('Connected to: ' + str(addr))
+  addClient((conn, addrStr)) # Add to clients array
+  
+  print('Connected to: ' + str(addrStr)) # Logging
+  logging.info('Connected to: ' + str(addrStr))
   
   conn.sendall('Welcome!\n'.encode()) # Test welcome message
   
   clientBuffer = '' # Buffer to ensure message whole-ness
-  
-  addrStr = addr[0] + ':' + str(addr[1]) # Address as string
   
   # Main Loop
   
@@ -346,8 +389,8 @@ def clientThreadFunction(conn, addr):
       
       if not data:
         
-        print('Disconnected from: ' + str(addr) + ' No data/clean') # Logging
-        logging.info('Disconnected from: ' + str(addr) + ' No data/clean')
+        print('Disconnected from: ' + strAddr + ' No data/clean') # Logging
+        logging.info('Disconnected from: ' + strAddr + ' No data/clean')
         
         break # Break
         
@@ -370,14 +413,14 @@ def clientThreadFunction(conn, addr):
       
     except Exception as e:
       
-      print('Disconnected from: ' + str(addr) + '\n' + str(e)) # Logging
-      logging.info('Disconnected from: ' + str(addr) + '\n' + str(e))
+      print('Disconnected from: ' + strAddr + '\n' + str(e)) # Logging
+      logging.info('Disconnected from: ' + strAddr + '\n' + str(e))
       
       break # Exit loop
       
     
   
-  removeClient(conn) # Remove from clients array
+  removeClient((conn, addrStr)) # Remove from clients array
   
   serverQueue.put((addrStr, 'disconnect')) # Tell server queue
   
@@ -390,21 +433,28 @@ try:
   
   while run.is_set():
     
-    conn, addr = sock.accept() # Accept incoming
-    
-    thread = threading.Thread(target = clientThreadFunction, args = (conn, addr), daemon = True)
-    thread.start() # Thread per client
+    try: # Try
+      
+      conn, addr = sock.accept() # Accept incoming
+      
+      thread = threading.Thread(target = clientThreadFunction, args = (conn, addr), daemon = True)
+      thread.start() # Thread per client
+      
+    except socket.timeout: pass # Ignore if timeout
     
   
 except KeyboardInterrupt: # Shutdown
   
   logging.info('Keyboard Interrupt') # Logging
-  print('\033[92m\nShutting Down\033[0m')
+  print('\033[92m\nShutting Down - Keyboard Interrupt\033[0m')
   
   run.clear() # Stop threads
   
 
 ### Post-Loop ###
 
+serverQueueThread.join(10) # Join
+
 sock.close() # Close socket
 
+print('Good Bye!')
