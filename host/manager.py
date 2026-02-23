@@ -228,10 +228,7 @@ KaliBasenji42's Github: https://github.com/KaliBasenji42
 
 Note: This only sends messages to the host to change its behavior (ignores responses)
 
-Inputs:
-  "quit": Quit
-  "kill": Kill host
-  "kick <ip:port>": Disconnect client of the given ip:port address
+Refer to README.md's Network section for details
 """
 
 print(title)
