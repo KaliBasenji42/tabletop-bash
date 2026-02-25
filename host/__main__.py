@@ -46,7 +46,7 @@ managers = [] # Whitelist of managers
 # Server
 
 clients = [] # Array of client connections
-clientsLock = threading.Lock() # Thread lock for clients 
+clientsLock = threading.RLock() # Thread lock for clients 
 # Lock ensures threads play nice with global value
 
 serverQueue = queue.Queue() # Queue to process all client messages
@@ -82,38 +82,12 @@ def strToPosInt(string): # Converts string to positive integer, returns 0 if no 
   else: return int(numStr)
   
 
-def strToFloat(string): # Converts string to float, returns 0 if no number, ignores non-numeric characters
-  
-  numStr = ''
-  
-  for i in range(len(string)):
-    
-    if string[i].isnumeric(): numStr = numStr + string[i]
-    if string[i] == '.': numStr = numStr + string[i]
-    
-  
-  if len(numStr) == 0: return 0
-  
-  if string[0] == '-': return -1 * float(numStr)
-  else: return float(numStr)
-  
-
 def hasNumerics(string): # Returns wether a string has numeric characters
   
   for char in string:
     if char.isnumeric(): return True
   
   return False
-  
-
-def roll(arr, new): # Have an array roll in a new value, removing the first
-  
-  out = arr
-  
-  out.append(new) # Add new
-  out.pop(0) # Remove first
-  
-  return out
   
 
 # File
@@ -144,6 +118,13 @@ def readConfig(): # Read config file
   blacklist = data['blacklist']
   managers = data['managers']
   
+  # Logging
+  
+  logging.debug('Whitelist Enabled: ' + str(enableWhitelist))
+  logging.debug('Whitelist: ' + str(whitelist))
+  logging.debug('Blacklist: ' + str(blacklist))
+  logging.debug('Managers: ' + str(managers))
+  
 
 # Network
 
@@ -172,17 +153,17 @@ def broadcast(message): # Send message to all connections
   
   with clientsLock:
     
-    for conn in clients.copy(): # For each client (copy to avoid disconnect error)
+    for client in clients.copy(): # For each client (copy to avoid disconnect error)
       
       try:
         
-        conn[0].sendall((message + '\n').encode()) # Send
+        client[0].sendall((message + '\n').encode()) # Send
         
         logging.info('Broadcast: ' + message) # Logging
         
       except Exception as e:
         
-        logging.exception('Failed to send message to ' + str(conn)) # Logging
+        logging.exception('Failed to send message to ' + str(client)) # Logging
         
       
     
@@ -192,20 +173,48 @@ def sendAddr(message, addr): # Send message to specific address
   
   with clientsLock:
     
-    for conn in clients.copy(): # For each client (copy to avoid disconnect error)
+    for client in clients.copy(): # For each client (copy to avoid disconnect error)
       
       try:
         
-        if conn[1] == addr: # If address matches
+        if client[1] == addr: # If address matches
           
-          conn[0].sendall((message + '\n').encode()) # Send
+          client[0].sendall((message + '\n').encode()) # Send
           
           logging.info('Send Addr to: ' + addr + ': ' + message) # Logging
           
         
       except Exception as e:
         
-        logging.exception('Failed to send message to ' + str(conn)) # Logging
+        logging.exception('Failed to send message to ' + str(client)) # Logging
+        
+      
+    
+  
+
+def kickAddr(addr): # Disconnect specific address
+  
+  with clientsLock:
+    
+    for client in clients.copy(): # For each client (copy to avoid disconnect error)
+      
+      try:
+        
+        if client[1] == addr: # If address matches
+          
+          try: client[0].shutdown(socket.SHUT_RDWR) # Shutdown
+          except: pass
+          
+          removeClient(client) # Remove
+          
+          client[0].close() # Close
+          
+          logging.info('Kicked: ' + addr) # Logging
+          
+        
+      except Exception as e:
+        
+        logging.exception('Failed to kick ' + str(client)) # Logging
         
       
     
@@ -256,6 +265,27 @@ def serverQueueThreadFunction(): # Processes server queue messages
       
       addr, message = serverQueue.get(timeout = 1)
       
+      # Manager
+      
+      if addr.split(':')[0] in managers: # If sent from manager
+        
+        if message == 'kill': # Kill
+          
+          run.clear() # Kill
+          
+          print('Kill signal from manager ' + addr) # Print
+          
+          logging.info('Kill signal from manager ' + addr) # Logging
+          
+        
+        elif message.startswith('kick:'): # Kick
+          
+          logging.debug('Kicking: ' + message[5:]) # Logging
+          
+          kickAddr(message[5:]) # Kick
+          
+        
+      
       # Disconnect
       
       if message == 'disconnect':
@@ -267,84 +297,65 @@ def serverQueueThreadFunction(): # Processes server queue messages
         broadcast('chat:' + generateChatLog(chatLog))
         
       
-      # Manager
-      
-      if message == 'kill': # Kill
-        
-        if addr.split(':')[0] in managers: # If sent from manager
-          
-          run.clear() # Kill
-          
-          print('Kill signal from manager ' + addr) # Print
-          
-          logging.info('Kill signal from manager ' + addr) # Logging
-          
-        
-      
       # Join
       
-      if len(message) >= 5:
-        if message[:5] == 'join:': # If join
-          
-          usernames[addr] = message[5:] # Add username
-          
-          print(addr + ' is "' + message[5:] + '"') # Print
-          
-          logging.info(addr + ' is "' + message[5:] + '"') # Logging
-          logging.debug('Usernames:\n' + str(usernames))
-          
-          chatLog.append((addr, 'Joined', 'conn')) # Chat log
-          while len(chatLog) > chatLength: # While too long
-            chatLog.pop(0) # Remove oldest
-          
-          
-          broadcast('chat:' + generateChatLog(chatLog))
-          
+      elif message.startswith('join:'): # If join
+        
+        usernames[addr] = message[5:] # Add username
+        
+        print(addr + ' is "' + message[5:] + '"') # Print
+        
+        logging.info(addr + ' is "' + message[5:] + '"') # Logging
+        logging.debug('Usernames:\n' + str(usernames))
+        
+        chatLog.append((addr, 'Joined', 'conn')) # Chat log
+        while len(chatLog) > chatLength: # While too long
+          chatLog.pop(0) # Remove oldest
+        
+        
+        broadcast('chat:' + generateChatLog(chatLog))
+        
       
       # Change Username
       
-      if len(message) >= 3:
-        if message[:3] == 'un:': # If UN change
-          
-          usernames[addr] = message[3:] # Set username
-          
-          print(addr + ' is "' + message[3:] + '"') # Print
-          
-          logging.info(addr + ' is "' + message[3:] + '"') # Logging
-          logging.debug('Usernames:\n' + str(usernames))
-          
-          chatLog.append((addr, 'Changed UN', 'conn')) # Chat log
-          while len(chatLog) > chatLength: # While too long
-            chatLog.pop(0) # Remove oldest
-          
-          
-          broadcast('chat:' + generateChatLog(chatLog))
-          
+      elif message.startswith('un:'): # If UN change
+        
+        usernames[addr] = message[3:] # Set username
+        
+        print(addr + ' is "' + message[3:] + '"') # Print
+        
+        logging.info(addr + ' is "' + message[3:] + '"') # Logging
+        logging.debug('Usernames:\n' + str(usernames))
+        
+        chatLog.append((addr, 'Changed UN', 'conn')) # Chat log
+        while len(chatLog) > chatLength: # While too long
+          chatLog.pop(0) # Remove oldest
+        
+        
+        broadcast('chat:' + generateChatLog(chatLog))
+        
       
       # Chat Message
       
-      if len(message) >= 4:
-        if message[:4] == 'msg:': # If chat message
-          
-          chatLog.append((addr, message[4:], 'msg')) # Chat log
-          while len(chatLog) > chatLength: # While too long
-            chatLog.pop(0) # Remove oldest
-          
-          broadcast('chat:' + generateChatLog(chatLog))
-          
+      elif message.startswith('msg:'): # If chat message
+        
+        chatLog.append((addr, message[4:], 'msg')) # Chat log
+        while len(chatLog) > chatLength: # While too long
+          chatLog.pop(0) # Remove oldest
+        
+        broadcast('chat:' + generateChatLog(chatLog))
         
       
       # Buzzer
       
-      if len(message) >= 5:
-        if message[:5] == 'buzz:': # If buzzer
-          
-          chatLog.append((addr, message[5:], 'buzz')) # Chat log
-          while len(chatLog) > chatLength: # While too long
-            chatLog.pop(0) # Remove oldest
-          
-          broadcast('chat:' + generateChatLog(chatLog))
-          
+      elif message.startswith('buzz:'): # If buzzer
+        
+        chatLog.append((addr, message[5:], 'buzz')) # Chat log
+        while len(chatLog) > chatLength: # While too long
+          chatLog.pop(0) # Remove oldest
+        
+        broadcast('chat:' + generateChatLog(chatLog))
+        
       
     except queue.Empty:
       continue # Continue if empty
@@ -418,6 +429,24 @@ except Exception as e:
 # Thread Function
 
 def clientThreadFunction(conn, addr):
+  
+  # White/Black list
+  
+  if(enableWhitelist): # Do whitelist
+    
+    if(not addr[0] in whitelist): # Not in whitelist
+      logging.info('"' + addr[0] + '" blocked (whitelist)') # Logging
+      conn.close() # Close
+      return # Exit
+    
+  
+  else: # Do blacklist
+    
+    if(addr[0] in blacklist): # In blacklist
+      logging.info('"' + addr[0] + '" blocked (blacklist)') # Logging
+      conn.close() # Close
+      return # Exit
+    
   
   # Pre-Loop
   

@@ -67,11 +67,11 @@ termTooSmall = True # Wether the terminal is too small
 
 # Game
 
-tableGrid = [] # Array of strings representing the look of the table
 tableState = [] # Array of objects on the table (sent from server, updated in thread)
 
-inventoryGrid = [] # Array of strings representing the look of the inventory
 inventoryState = [] # Array of objects in inventory
+
+defaultRender = {} # Default rendering dictionary
 
 ### Functions ###
 
@@ -89,38 +89,12 @@ def strToPosInt(string): # Converts string to positive integer, returns 0 if no 
   else: return int(numStr)
   
 
-def strToFloat(string): # Converts string to float, returns 0 if no number, ignores non-numeric characters
-  
-  numStr = ''
-  
-  for i in range(len(string)):
-    
-    if string[i].isnumeric(): numStr = numStr + string[i]
-    if string[i] == '.': numStr = numStr + string[i]
-    
-  
-  if len(numStr) == 0: return 0
-  
-  if string[0] == '-': return -1 * float(numStr)
-  else: return float(numStr)
-  
-
 def hasNumerics(string): # Returns wether a string has numeric characters
   
   for char in string:
     if char.isnumeric(): return True
   
   return False
-  
-
-def roll(arr, new): # Have an array roll in a new value, removing the first
-  
-  out = arr
-  
-  out.append(new) # Add new
-  out.pop(0) # Remove first
-  
-  return out
   
 
 # File
@@ -148,11 +122,10 @@ def processMessage(message): # Processes network messages and updates game state
   
   global chatLog
   
-  if len(message) >= 5:
-    if message[:5] == 'chat:': # If chat
-      
-      chatLog = json.loads(message[5:]) # Load json
-      
+  if message.startswith('chat:'): # If chat
+    
+    chatLog = json.loads(message[5:]) # Load json
+    
   
 
 # output
@@ -166,12 +139,12 @@ def render(stdscr): # Render screen
   
   stdscr.clear() # Clear
   
-  # Backgrounds
+  ### Backgrounds ###
   
   for window in windows:
     window.renderBackground(stdscr)
   
-  # Chat
+  ### Chat ###
   
   global chatLog
   
@@ -268,36 +241,18 @@ def render(stdscr): # Render screen
       )
       
     
-  # Context
   
-  # Table
+  ### Context ###
   
-  global slected
+  
+  
+  ### Table ###
+  
+  global selected
   
   stdscr.chgat(selected[0] + 1, selected[1] + 1, 1, curses.A_REVERSE)
   
-  # Debug
-  
-  heightStr = ( # String for logging height
-    'Height: ' + str(screenHeight) +
-    ' of ' + str(termSize[0])
-  )
-  
-  widthStr = ( # String for logging width
-    'Width: ' + str(screenWidth) +
-    ' of ' + str(termSize[1])
-  )
-  
-  tickStr = ( # String for logging tick
-    'Tick: ' + str(tick)
-  )
-  
-  stdscr.addstr(contextWindow.y + 1, contextWindow.x + 1, widthStr) # Out width
-  stdscr.addstr(contextWindow.y + 2, contextWindow.x + 1, heightStr) # Out height
-  stdscr.addstr(contextWindow.y + 3, contextWindow.x + 1, tickStr) # Out tick
-  
-  for i in range(16): # Color
-    stdscr.addstr(i, 0, str(i+1), curses.color_pair(i+1))
+  ### Refresh ###
   
   stdscr.refresh() # Refresh
   
@@ -367,7 +322,10 @@ class window:
     rowNum = 0 # Row iterator
     
     for row in self.background: # For each row
-      stdscr.addstr(self.y + rowNum, self.x, row, curses.color_pair(9)) # Add string
+      stdscr.addstr( # Add string
+        self.y + rowNum, self.x,
+        row, curses.color_pair(9) # Gray
+      ) 
       rowNum += 1 # Iterate
     
   

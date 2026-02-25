@@ -55,38 +55,12 @@ def strToPosInt(string): # Converts string to positive integer, returns 0 if no 
   else: return int(numStr)
   
 
-def strToFloat(string): # Converts string to float, returns 0 if no number, ignores non-numeric characters
-  
-  numStr = ''
-  
-  for i in range(len(string)):
-    
-    if string[i].isnumeric(): numStr = numStr + string[i]
-    if string[i] == '.': numStr = numStr + string[i]
-    
-  
-  if len(numStr) == 0: return 0
-  
-  if string[0] == '-': return -1 * float(numStr)
-  else: return float(numStr)
-  
-
 def hasNumerics(string): # Returns wether a string has numeric characters
   
   for char in string:
     if char.isnumeric(): return True
   
   return False
-  
-
-def roll(arr, new): # Have an array roll in a new value, removing the first
-  
-  out = arr
-  
-  out.append(new) # Add new
-  out.pop(0) # Remove first
-  
-  return out
   
 
 ### Classes ###

@@ -123,6 +123,8 @@ Kill signal, shutdown server.
 
 Disconnect connection with the matching *addr*.  
 
+*addr* is in form 0.0.0.0:0000 (ensure port is specified).  
+
 > Used by Manager  
 
 ## Client
