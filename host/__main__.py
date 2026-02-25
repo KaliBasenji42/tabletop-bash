@@ -64,7 +64,7 @@ run.set()
 chatLog = [] # Array of tuples of strings (user, message, type), containing the chat log
 chatLength = 20 # Max chat log length
 
-tableState = [] # 2D Array of objects on the table
+tableState = [] # 3D Array of objects on the table
 
 items = {} # Dictionary of default items
 defaultRender = {} # Dictionary of default rendering
@@ -127,6 +127,75 @@ def readConfig(): # Read config file
   logging.debug('Whitelist: ' + str(whitelist))
   logging.debug('Blacklist: ' + str(blacklist))
   logging.debug('Managers: ' + str(managers))
+  
+
+def readItems(): # Read item file
+  
+  # Variables
+  
+  global items
+  global defaultRender
+  
+  # Read Files
+  
+  with open(itemsPath, 'r') as file: data = json.loads(file.read())
+  
+  # Set variables
+  
+  for itemKey in data['items']: # Each item
+    
+    item = data['items'][itemKey] # Get item
+    
+    # Default Render
+    
+    if 'char' in item and 'color' in item: # If it has a default char and color
+    
+      defaultRender[itemKey] = { # Set default render value
+        'char': item['char'],
+        'color': item['color']
+      }
+      
+    
+    # Items
+    
+    stacks = False # Wether the item can stack
+    flips = False # Wether the item can flip
+    roll = [] # Items the item can randomly transform to
+    
+    if 'stacks' in item: # If it has 'stacks'...
+      stacks = item['stacks'] # ..set
+    
+    if 'flip' in item: # If it has 'flip'...
+      flips = True # ..true
+    
+    if 'roll' in item: # If it has 'roll'...
+      roll = item['roll'] # ..set
+    
+    items[itemKey] = { # Add item
+      'stacks': stacks,
+      'flips': flips,
+      'roll': roll
+    }
+    
+  
+  for itemKey in data['render']: # Each render item
+    
+    item = data['render'][itemKey] # Get item
+    
+    # Default Render
+    
+    if item['char'] and item['color']: # If it has a default char and color
+    
+      defaultRender[itemKey] = { # Set default render value
+        'char': item['char'],
+        'color': item['color']
+      }
+      
+    
+  # Logging
+  
+  #logging.debug('Items: ' + str(items))
+  #logging.debug('Default Render: ' + str(defaultRender))
   
 
 # Network
@@ -397,6 +466,7 @@ print(title)
 try:
   
   readConfig()
+  readItems()
   
 except Exception as e:
   
