@@ -1,0 +1,508 @@
+{
+  
+  "aceSpade": {
+    "char": "🂡",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "2Spade": {
+    "char": "🂢",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "3Spade": {
+    "char": "🂣",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "4Spade": {
+    "char": "🂤",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "5Spade": {
+    "char": "🂥",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "6Spade": {
+    "char": "🂦",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "7Spade": {
+    "char": "🂧",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "8Spade": {
+    "char": "🂨",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "9Spade": {
+    "char": "🂩",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "10Spade": {
+    "char": "🂪",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "jackSpade": {
+    "char": "🂫",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "knightSpade": {
+    "char": "🂬",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "queenSpade": {
+    "char": "🂭",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "kingSpade": {
+    "char": "🂮",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  
+  "aceHeart": {
+    "char": "🂱",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "2Heart": {
+    "char": "🂲",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "3Heart": {
+    "char": "🂳",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "4Heart": {
+    "char": "🂴",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "5Heart": {
+    "char": "🂵",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "6Heart": {
+    "char": "🂶",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "7Heart": {
+    "char": "🂷",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "8Heart": {
+    "char": "🂸",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "9Heart": {
+    "char": "🂹",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "10Heart": {
+    "char": "🂺",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "jackHeart": {
+    "char": "🂻",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "knightHeart": {
+    "char": "🂼",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "queenHeart": {
+    "char": "🂽",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "kingHeart": {
+    "char": "🂾",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  
+  "aceDiamond": {
+    "char": "🃁",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "2Diamond": {
+    "char": "🃂",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "3Diamond": {
+    "char": "🃃",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "4Diamond": {
+    "char": "🃄",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "5Diamond": {
+    "char": "🃅",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "6Diamond": {
+    "char": "🃆",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "7Diamond": {
+    "char": "🃇",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "8Diamond": {
+    "char": "🃈",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "9Diamond": {
+    "char": "🃉",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "10Diamond": {
+    "char": "🃊",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "jackDiamond": {
+    "char": "🃋",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "knightDiamond": {
+    "char": "🃌",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "queenDiamond": {
+    "char": "🃍",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "kingDiamond": {
+    "char": "🃎",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  
+  "aceClub": {
+    "char": "🃑",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "2Club": {
+    "char": "🃒",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "3Club": {
+    "char": "🃓",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "4Club": {
+    "char": "🃔",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "5Club": {
+    "char": "🃕",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "6Club": {
+    "char": "🃖",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "7Club": {
+    "char": "🃗",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "8Club": {
+    "char": "🃘",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "9Club": {
+    "char": "🃙",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "10Club": {
+    "char": "🃚",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "jackClub": {
+    "char": "🃛",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "knightClub": {
+    "char": "🃜",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "queenClub": {
+    "char": "🃝",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "kingClub": {
+    "char": "🃞",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  
+  "jokerBlack": {
+    "char": "🃟",
+    "color": 16,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  "jokerRed": {
+    "char": "🃟",
+    "color": 10,
+    "stacks": true,
+    "flip": "🂠"
+  },
+  
+  
+  
+  "kingWhiteChess": {
+    "char": "♚",
+    "color": 16,
+    "stacks": false,
+    "flip": "🨤"
+  },
+  "queenWhiteChess": {
+    "char": "♛",
+    "color": 16,
+    "stacks": false,
+    "flip": "🨥"
+  },
+  "rookWhiteChess": {
+    "char": "♜",
+    "color": 16,
+    "stacks": false,
+    "flip": "🨦"
+  },
+  "bishopWhiteChess": {
+    "char": "♝",
+    "color": 16,
+    "stacks": false,
+    "flip": "🨧"
+  },
+  "knightWhiteChess": {
+    "char": "♞",
+    "color": 16,
+    "stacks": false,
+    "flip": "🨨"
+  },
+  "pawnWhiteChess": {
+    "char": "♟",
+    "color": 16,
+    "stacks": false,
+    "flip": "🨩"
+  },
+  
+  "kingBlackChess": {
+    "char": "♔",
+    "color": 15,
+    "stacks": false,
+    "flip": "🨞"
+  },
+  "queenBlackChess": {
+    "char": "♕",
+    "color": 15,
+    "stacks": false,
+    "flip": "🨟"
+  },
+  "rookBlackChess": {
+    "char": "♖",
+    "color": 15,
+    "stacks": false,
+    "flip": "🨠"
+  },
+  "bishopBlackChess": {
+    "char": "♗",
+    "color": 15,
+    "stacks": false,
+    "flip": "🨡"
+  },
+  "knightBlackChess": {
+    "char": "♘",
+    "color": 15,
+    "stacks": false,
+    "flip": "🨢"
+  },
+  "pawnBlackChess": {
+    "char": "♙",
+    "color": 15,
+    "stacks": false,
+    "flip": "🨣"
+  },
+  
+  
+  
+  "blackChecker": {
+    "char": "⛀",
+    "color": 15,
+    "roll": ["blackCheckerKing"]
+  },
+  "blackCheckerKing": {
+    "char": "⛁",
+    "color": 15,
+    "roll": ["blackChecker"]
+  },
+  "whiteChecker": {
+    "char": "⛂",
+    "color": 16,
+    "roll": ["whiteCheckerKing"]
+  },
+  "whiteCheckerKing": {
+    "char": "⛃",
+    "color": 16,
+    "roll": ["whiteChecker"]
+  },
+  
+  
+  
+  "dice1": {
+    "char": "⚀",
+    "color": 16,
+    "stacks": false,
+    "roll": ["dice1", "dice2", "dice3", "dice4", "dice5", "dice6"]
+  },
+  "dice2": {
+    "char": "⚁",
+    "color": 16,
+    "stacks": false,
+    "roll": ["dice1", "dice2", "dice3", "dice4", "dice5", "dice6"]
+  },
+  "dice3": {
+    "char": "⚂",
+    "color": 16,
+    "stacks": false,
+    "roll": ["dice1", "dice2", "dice3", "dice4", "dice5", "dice6"]
+  },
+  "dice4": {
+    "char": "⚃",
+    "color": 16,
+    "stacks": false,
+    "roll": ["dice1", "dice2", "dice3", "dice4", "dice5", "dice6"]
+  },
+  "dice5": {
+    "char": "⚄",
+    "color": 16,
+    "stacks": false,
+    "roll": ["dice1", "dice2", "dice3", "dice4", "dice5", "dice6"]
+  },
+  "dice6": {
+    "char": "⚅",
+    "color": 16,
+    "stacks": false,
+    "roll": ["dice1", "dice2", "dice3", "dice4", "dice5", "dice6"]
+  },
+  
+  
+  
+  "heart": {
+    "char": "♥",
+    "color": 10,
+    "stacks": false
+  },
+  
+  "OwO": {
+    "char": "ẅ",
+    "color": 11,
+    "stacks": false
+  }
+  
+}

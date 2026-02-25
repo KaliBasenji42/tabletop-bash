@@ -32,6 +32,7 @@ logging.debug('New Run: ')
 # Files
 
 configPath = 'config.json' # Path to config file
+itemsPath = 'items.json' # Path to item definition file
 
 # Server Config
 
@@ -58,13 +59,15 @@ usernames = {} # Dictionary of usernames
 run = threading.Event() # Thread event, wether to run Main Loop
 run.set()
 
-# Data (sent stuff)
+# Data
 
 chatLog = [] # Array of tuples of strings (user, message, type), containing the chat log
-# Note: Sent as string, split on '\\;' at receive
-tableState = [] # Array of objects on the table (sent from server, updated in thread)
-
 chatLength = 20 # Max chat log length
+
+tableState = [] # 2D Array of objects on the table
+
+items = {} # Dictionary of default items
+defaultRender = {} # Dictionary of default rendering
 
 ### Functions ###
 
