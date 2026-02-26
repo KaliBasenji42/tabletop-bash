@@ -65,6 +65,21 @@ screenHeight = 0 # Screen height
 
 termTooSmall = True # Wether the terminal is too small
 
+mode = 0 # 0 = Normal/Table, 1 = Inventory, 2 = Help
+
+helpText = [ # Help text array
+  'wasd: Move/Navigate',
+  'e: Select',
+  'x: Cancel',
+  'q: Main Menu/Quit',
+  'h: Help',
+  't: Chat (enter nothing to cancel)',
+  'b: Buzzer',
+  'u: Change username',
+  '',
+  'Press "x" to exit'
+]
+
 # Game
 
 tableState = [] # Array of objects on the table (sent from server, updated in thread)
@@ -137,12 +152,45 @@ def renderTable(): # Takes tableState and redraws tableGrid for rendering
 
 def render(stdscr): # Render screen
   
+  # Global Variables
+  
+  global selected
+  global mode
+  global helpText
+  
   stdscr.clear() # Clear
   
   ### Backgrounds ###
   
   for window in windows:
     window.renderBackground(stdscr)
+  
+  
+  ### Menus ###
+  
+  for menu in menus: # For each menu
+    
+    if menu.active: # If active
+      menu.render(stdscr) # Render
+    
+  
+  ### Help ###
+  
+  if mode == 2: # If help mode
+    
+    rowNum = 0 # Row iterator
+    
+    for row in helpText: # Each text row
+      
+      stdscr.addstr( # Output row
+        contextWindow.y + 1 + rowNum,
+        contextWindow.x + 1,
+        row
+      )
+      
+      rowNum += 1 # Iterate row
+      
+    
   
   ### Chat ###
   
@@ -244,13 +292,15 @@ def render(stdscr): # Render screen
   
   ### Context ###
   
-  
+  stdscr.addstr(
+    contextWindow.y + contextWindow.height - 1, contextWindow.x + 1,
+    'Mode: ' + str(mode)
+  )
   
   ### Table ###
   
-  global selected
-  
   stdscr.chgat(selected[0] + 1, selected[1] + 1, 1, curses.A_REVERSE)
+  # Highlight selected cell
   
   ### Refresh ###
   
@@ -343,6 +393,95 @@ for window in windows: # Each window
   screenWidth = max(screenWidth, window.x + window.width) # Screen width
   screenHeight = max(screenHeight, window.y + window.height) # Screen height
   
+
+class menu:
+  
+  def __init__(self, options, optionDetails):
+    
+    # Variables
+    
+    self.active = False # Wether the menu is up/active
+    self.options = options # Menu options
+    self.optionDetails = optionDetails # Option details
+    self.pos = 0 # Hovering option position
+    
+  
+  def key(self, key): # Process key press
+    
+    if key == -1: return -1 # Skip if no keypress
+    
+    # Number Shortcut
+    
+    keyNum = 0 # Key translated to number press
+    
+    try: keyNum = strToPosInt(chr(key)) # Try to convert
+    except: pass # Otherwise, base case of 0
+    
+    if keyNum > 0 and keyNum <= len(self.options): # Within option range
+      self.active = False # Close
+      self.pos = 0 # Reset Pos
+      return keyNum - 1 # Returned selected
+    
+    # Selection
+    
+    elif key == ord('e'): # Select
+      self.active = False # Close
+      self.pos = 0 # Reset Pos
+      return self.pos # Return selected
+    
+    elif key == ord('x'): # Cancel
+      self.pos = 0 # Reset Pos
+      self.active = False # Close
+    
+    
+    # Movement
+    
+    elif key == ord('w'): # Up
+      self.pos += -1
+    elif key == ord('s'): # Down
+      self.pos += 1
+    
+    self.pos = max(0, self.pos) # Clamp >= 0
+    self.pos = min(len(self.options) - 1, self.pos) # Clamp < options
+    
+    return -1 # Base Case
+    
+  
+  def render(self, stdscr): # Render on context
+    
+    for i in range(min(len(self.options), contextWindow.height - 3)):
+      # Each option, within contextWindow height
+      
+      option = (str(i+1) + '. ' + self.options[i])[:contextWindow.width - 2]
+      # Option string
+      
+      stdscr.addstr( # Render
+        contextWindow.y + 1 + i, contextWindow.x + 1,
+        option
+      )
+      
+      if i == self.pos: # If selected
+        
+        stdscr.chgat( # Highlight
+          contextWindow.y + 1 + i, contextWindow.x + 1,
+          len(option), curses.A_REVERSE
+        )
+        
+        stdscr.addstr( # Description
+          contextWindow.y + contextWindow.height - 2, contextWindow.x + 1,
+          self.optionDetails[i][:contextWindow.width - 2]
+        )
+        
+      
+    
+  
+
+mainMenu = menu(
+  ['Quit', 'Inventory', 'Toy Box'],
+  ['Quit Game', 'Scroll Though Inventory', 'Add Items to Inventory']
+)
+
+menus = [mainMenu]
 
 # Item
 
@@ -551,6 +690,7 @@ def main(stdscr):
   global selected
   global message
   global termSize
+  global mode
   
   # Main Loop
   
@@ -643,30 +783,25 @@ def main(stdscr):
     
     key = stdscr.getch()
     
-    # Escape
+    # Menus
     
-    if key == ord('q'):
+    if mainMenu.active:
       
-      if termTooSmall: # Minimal if too small
-        run = False
-        break
+      selectedOption = mainMenu.key(key)
       
-      stdscr.nodelay(False) # Block until input
-      
-      contextWindow.renderBackground(stdscr) # Clear context
-      
-      stdscr.addstr( # Output
-        contextWindow.y + 1,
-        contextWindow.x + 1,
-        'Quit? (y)'
-      )
-      
-      stdscr.refresh() # Refresh
-      
-      if stdscr.getch() == ord('y'): # Confirm
+      if selectedOption == 0: # Quit
         run = False
       
-      stdscr.nodelay(True) # Reset to non-blocking
+    
+    # Quit
+    
+    elif key == ord('q'):
+      
+      if termTooSmall: # If too small
+        run = False
+      
+      else: # Otherwise
+        mainMenu.active = True # Activate main menu
       
     
     # Movements
@@ -678,42 +813,15 @@ def main(stdscr):
     
     # Other keys
     
+    elif key == ord('x') and not termTooSmall: # Cancel / Exit below/misc
+      
+      if mode == 2: # If help mode
+        mode = 0 # Exit
+      
+    
     elif key == ord('h') and not termTooSmall: # Help
       
-      stdscr.nodelay(False) # Block until input
-      
-      text = [ # Help text array
-        'wasd: Move selected',
-        'e: Select',
-        'q: Quit',
-        'h: Help',
-        't: Chat (enter nothing to cancel)',
-        'b: Buzzer',
-        'u: Change username',
-        '',
-        'Press any key to exit'
-      ]
-      
-      contextWindow.renderBackground(stdscr) # Clear context
-      
-      rowNum = 0 # Row iterator
-      
-      for row in text: # Each text row
-        
-        stdscr.addstr( # Output row
-          contextWindow.y + 1 + rowNum,
-          contextWindow.x + 1,
-          row
-        )
-        
-        rowNum += 1 # Iterate row
-        
-      
-      stdscr.refresh() # Refresh
-      
-      stdscr.getch() # Pause
-      
-      stdscr.nodelay(True) # Reset to non-blocking
+      mode = 2 # Set mode to help
       
     
     elif key == ord('t') and not termTooSmall: # Chat
