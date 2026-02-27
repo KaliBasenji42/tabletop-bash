@@ -26,10 +26,10 @@ import logging
 
 logging.basicConfig(
   level=logging.DEBUG,
-  format='%(asctime)s | %(levelname)s: %(message)s',
-  filename='client.log'
+  format='%(asctime)s | %(filename)s:%(lineno)s | %(levelname)s: %(message)s',
+  filename='app.log'
 )
-logging.debug('New Run: ')
+logging.debug('New Run')
 
 ### Variables ###
 
@@ -292,10 +292,7 @@ def render(stdscr): # Render screen
   
   ### Context ###
   
-  stdscr.addstr(
-    contextWindow.y + contextWindow.height - 1, contextWindow.x + 1,
-    'Mode: ' + str(mode)
-  )
+  
   
   ### Table ###
   

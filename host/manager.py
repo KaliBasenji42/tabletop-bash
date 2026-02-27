@@ -21,10 +21,10 @@ import logging
 
 logging.basicConfig(
   level=logging.DEBUG,
-  format='%(asctime)s | %(levelname)s: %(message)s',
-  filename='manager.log'
+  format='%(asctime)s | %(filename)s:%(lineno)s | %(levelname)s: %(message)s',
+  filename='app.log'
 )
-logging.debug('New Run: ')
+logging.debug('New Run')
 
 ### Variables ###
 
