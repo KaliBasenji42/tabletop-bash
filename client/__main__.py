@@ -133,13 +133,23 @@ def readConfig(): # Read config file
 
 def processMessage(message): # Processes network messages and updates game state
   
-  # Chat
+  # Variables
   
   global chatLog
+  global defaultRender
+  
+  # Chat
   
   if message.startswith('chat:'): # If chat
     
     chatLog = json.loads(message[5:]) # Load json
+    
+  
+  # Default Rendering
+  
+  elif message.startswith('defaultRender:'): # If default render
+    
+    defaultRender = json.loads(message[14:]) # Load json
     
   
 
@@ -474,8 +484,20 @@ class menu:
   
 
 mainMenu = menu(
-  ['Quit', 'Inventory', 'Toy Box'],
-  ['Quit Game', 'Scroll Though Inventory', 'Add Items to Inventory']
+  [
+    'Quit',
+    'Inventory',
+    'Toy Box',
+    'Disconnected Inventories',
+    'Paint Stamps'
+  ],
+  [
+    'Quit game',
+    'Scroll through inventory',
+    'Add items to inventory',
+    'Grab inventories from disconnected clients',
+    'Predefined stamps that paint section of the table'
+  ]
 )
 
 menus = [mainMenu]

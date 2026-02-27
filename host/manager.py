@@ -203,6 +203,7 @@ KaliBasenji42's Github: https://github.com/KaliBasenji42
 Note: This only sends messages to the host to change its behavior (ignores responses)
 
 Refer to README.md's Network section for details
+Enter "quit" to quit
 """
 
 print(title)

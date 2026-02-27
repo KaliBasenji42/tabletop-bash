@@ -534,6 +534,11 @@ def clientThreadFunction(conn, addr):
   
   clientBuffer = '' # Buffer to ensure message whole-ness
   
+  # Data on join
+  
+  conn.sendall(('defaultRender:' + json.dumps(defaultRender) + '\n').encode())
+  # Send default rendering info
+  
   # Main Loop
   
   while run.is_set():

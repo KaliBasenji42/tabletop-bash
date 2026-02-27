@@ -5,6 +5,15 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 
 > **IMPORTANT:**  
 > Do not share your IP address with people you do not trust.  
+> This (currently) uses very simple network architecture, and may not be the must secure, this software is for entertainment purposes.  
+
+## Table of Contents
+
+- [Getting Started](#getting-started)  
+- [Client UI](#client-ui)
+- [File Structure](#file-structure)
+- [Data Files](#data-files)
+- [Network](#network)
 
 # Getting Started
 
@@ -13,10 +22,12 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 1. On the host device move to `./host/`
 2. Configure your device IP and Port in `config.json`
     - Ensure your clients can access this IP and Port, you may need to disable your firewall on the given port.
+    - If your clients are outside your local network, you may need to forward your port (DO AT YOUR OWN RISK!) (Tunneling may be more secure, do your own networking). 
 3. Run `__main__` (type `./__main__` in terminal)
-4. Run `manager` (in a new terminal window/device) to send manage the server
+4. Press \[ctrl + c\] to quit
+5. Run `manager` (in a new terminal window/device) to send manage the server
     - See [Network](#network) for more details
-5. Press \[ctrl + c\] to quit
+6. Enter "quit" to quit
 
 ## Client
 
@@ -25,9 +36,47 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 3. Input the host IP and Port
 4. Input your username
     - This can by **any** string (including someone else's), you can press 'u' to change it at any point in the game
-5. Press 'q' then 'y' to quit
+5. Press 'q' then 'e' or '1' to quit
 
 # Client UI
+
+Help Text:  
+<pre style="white-space: pre; overflow-x: scroll;">
+wasd: Move/Navigate
+e: Select
+x: Cancel
+q: Main Menu/Quit
+h: Help
+t: Chat (enter nothing to cancel)
+b: Buzzer
+u: Change username
+
+Press "x" to exit
+</pre>
+
+# File Structure
+
+<pre style="white-space: pre; overflow-x: scroll;">
+.
+├── client <i>- Folder for client program</i>
+│   ├── app.log <i>- Log file</i>
+│   ├── config.json <i>- Config file</i>
+│   ├── __main__.py <i>- Main program source script</i>
+│   └── __main__ <i>- Main program binary*</i>
+├── host <i>- Folder for host server program</i>
+│   ├── app.log <i>- Log file</i>
+│   ├── config.json <i>- Config file</i>
+│   ├── items.json <i>- Item definition file**</i>
+│   ├── __main__.py <i>- Main program source script</i>
+│   ├── __main__ <i>- Main program binary*</i>
+│   ├── manager.py <i>- Manager program source script</i>
+│   └── manager <i>- Manager program binary*</i>
+├── LICENSE.md <i>- GPL v2 License</i>
+└── README.md <i>- This file</i>
+</pre>
+
+\* Binary files are packaged using manylinux2014_x86_64 (CentOS), with Python 3.12 Pyinstaller.  
+\*\* File that defines the table items.  
 
 # Data Files
 
@@ -64,6 +113,29 @@ Config files `config.json` in their respective folders.
 ```
 
 ### Client
+
+<span id="color-key"></span>
+
+**Color Key:**  
+
+| Int | Color          |
+| --- | -------------- |
+| 1   | Black          |
+| 2   | Red            |
+| 3   | Green          |
+| 4   | Yellow         |
+| 5   | Blue           |
+| 6   | Magenta        |
+| 7   | Cyan           |
+| 8   | White          |
+| 9   | Bright Black   |
+| 10  | Bright Red     |
+| 11  | Bright Green   |
+| 12  | Bright Yellow  |
+| 13  | Bright Blue    |
+| 14  | Bright Magenta |
+| 15  | Bright Cyan    |
+| 16  | Bright White   |
 
 # Network
 
@@ -132,7 +204,7 @@ Disconnect connection with the matching *addr*.
 **"chat:*data*":**  
 
 Updated chat log, sets `chatLog` to *data*.  
-*data* is JSON data in form:  
+*data* is stringified JSON data in form:  
 ```JSON
 [
   [
@@ -144,3 +216,21 @@ Updated chat log, sets `chatLog` to *data*.
 ]
 ```
 > The chat log sent is at most 20 in length.  
+
+**"defaultRender:*data*":**  
+
+Sets `defaultRender` to *data*.  
+*data* is stringified JSON data in form:  
+```JSON
+{
+  "itemName": { // Item name/ID
+    "char": "🂡", // Character printed for item
+    "color": 16 // Color the character is printed in*
+  },
+  ...
+}
+```
+
+*[Color Key](#color-key)  
+
+Host server sends this to each client as they join.  
