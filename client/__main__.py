@@ -381,7 +381,7 @@ class window:
     for row in self.background: # For each row
       stdscr.addstr( # Add string
         self.y + rowNum, self.x,
-        row, curses.color_pair(9) # Gray
+        row, curses.color_pair(9) # Grey
       ) 
       rowNum += 1 # Iterate
     
