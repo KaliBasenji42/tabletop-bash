@@ -1,3 +1,8 @@
+<style>
+  img {max-height: 32rem;}
+  body {background-color: rgb(32, 32, 32); color: rgb(240, 240, 240);}
+</style>
+
 # General
 
 This is Python project that emulates tabletop games with bash rendering.  
@@ -80,11 +85,11 @@ Press "x" to exit
 
 # Data Files
 
-## Configs
+## Host
 
-Config files `config.json` in their respective folders.  
+### Configs
 
-### Host
+Config file `config.json` in host folder.  
 
 ```JSON
 {
@@ -112,7 +117,47 @@ Config files `config.json` in their respective folders.
 }
 ```
 
-### Client
+### Items
+
+`items.json` file for defining item behavior and default rendering.  
+
+```JSON
+{
+  "items": { // Each item by item ID
+    "aceSpade": { // Item
+      "char": "🂡", // Character for (default) rendering
+      "color": 16, // Default rendering color
+      "stacks": true, // Wether it stacks (into a deck)
+      "flip": "flippedCard" // What the flipped variant references
+    },
+    
+    "dice1": { // Another item
+      "char": "⚀",
+      "color": 16,
+      "stacks": false,
+      "roll": ["dice1", "dice2", "dice3", "dice4", "dice5", "dice6"] // When rolled, which item(s) does it randomly change to
+    },
+    
+    ...
+  },
+  
+  "render": { // IDs only for rendering
+    
+    "flippedCard": { // ID
+      "char": "🂠", // Default rendering character
+      "color": 16 // Default rendering color
+    }
+    
+    ...
+  }
+}
+```
+
+## Client
+
+### Config
+
+Config file `config.json` in client folder.  
 
 <span id="color-key"></span>
 
@@ -136,6 +181,90 @@ Config files `config.json` in their respective folders.
 | 14  | Bright Magenta |
 | 15  | Bright Cyan    |
 | 16  | Bright White   |
+
+### Custom Renderings Look
+
+**Default:**  
+
+Cards:  
+
+<span style="color: rgb(240,240,240)">🂡🂢🂣🂤🂥🂦🂧🂨🂩🂪🂫🂬🂭🂮</span>  
+<span style="color: rgb(255,0,0)"    >🂱🂲🂳🂴🂵🂶🂷🂸🂹🂺🂻🂼🂽🂾</span>  
+<span style="color: rgb(255,0,0)"    >🃁🃂🃃🃄🃅🃆🃇🃈🃉🃊🃋🃌🃍🃎</span>  
+<span style="color: rgb(240,240,240)">🃑🃒🃓🃔🃕🃖🃗🃘🃙🃚🃛🃜🃝🃞</span>  
+<span style="color: rgb(240,240,240)">🃟</span>
+<span style="color: rgb(255,0,0)"    >🃟</span>
+<span style="color: rgb(240,240,240)">🂠</span>  
+
+Chess:  
+
+<span style="color: rgb(240,240,240)">♚♛♜♝♞♟</span>  
+<span style="color: rgb(240,240,240)">♔♕♖♗♘♙</span>  
+
+Checkers:  
+
+<span style="color: rgb(240,240,240)">⛀⛁</span>  
+<span style="color: rgb(240,240,240)">⛂⛃</span>  
+
+Dice:  
+
+<span style="color: rgb(240,240,240)">⚀⚁⚂⚃⚄⚅</span>  
+
+**`high-contrast.json`:**  
+
+Cards:  
+
+<span style="color: rgb(240,240,240)">🂡🂢🂣🂤🂥🂦🂧🂨🂩🂪🂫🂬🂭🂮</span>  
+<span style="color: rgb(255,0,0)"    >🂱🂲🂳🂴🂵🂶🂷🂸🂹🂺🂻🂼🂽🂾</span>  
+<span style="color: rgb(0,0,255)"    >🃁🃂🃃🃄🃅🃆🃇🃈🃉🃊🃋🃌🃍🃎</span>  
+<span style="color: rgb(0,255,0)"    >🃑🃒🃓🃔🃕🃖🃗🃘🃙🃚🃛🃜🃝🃞</span>  
+<span style="color: rgb(240,240,240)">🃟</span>
+<span style="color: rgb(255,0,0)"    >🃟</span>
+<span style="color: rgb(240,240,240)">🂠</span>  
+
+Chess:  
+
+<span style="color: rgb(240,240,240)">♚♛♜♝♞♟</span>  
+<span style="color: rgb(0,240,240)"  >♔♕♖♗♘♙</span>  
+
+Checkers:  
+
+<span style="color: rgb(240,240,240)">⛀⛁</span>  
+<span style="color: rgb(0,240,240)"  >⛂⛃</span>  
+
+Dice:  
+
+<span style="color: rgb(240,0,240)">⚀⚁⚂⚃⚄⚅</span>  
+
+**`non-special.json`:**  
+
+Cards:  
+
+<span style="color: rgb(240,240,240)">A234567890JCQK</span>  
+<span style="color: rgb(255,0,0)"    >A234567890JCQK</span>  
+<span style="color: rgb(0,0,255)"    >A234567890JCQK</span>  
+<span style="color: rgb(0,255,0)"    >A234567890JCQK</span>  
+<span style="color: rgb(240,240,240)">\*</span>
+<span style="color: rgb(255,0,0)"    >\*</span>
+<span style="color: rgb(240,240,240)">#</span>  
+
+Chess:  
+
+<span style="color: rgb(240,240,0)">KQRBNP</span>  
+<span style="color: rgb(0,240,240)">KQRBNP</span>  
+
+> "N" for kNight  
+
+Checkers:  
+
+<span style="color: rgb(240,240,0)">dD</span>  
+<span style="color: rgb(0,240,240)">dD</span>  
+
+> "d"/"D" for daughter  
+
+Dice:  
+
+<span style="color: rgb(240,0,240)">123456</span>  
 
 # Network
 

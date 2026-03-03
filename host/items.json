@@ -386,32 +386,32 @@
     
     "kingBlackChess": {
       "char": "♔",
-      "color": 15,
+      "color": 16,
       "stacks": false
     },
     "queenBlackChess": {
       "char": "♕",
-      "color": 15,
+      "color": 16,
       "stacks": false
     },
     "rookBlackChess": {
       "char": "♖",
-      "color": 15,
+      "color": 16,
       "stacks": false
     },
     "bishopBlackChess": {
       "char": "♗",
-      "color": 15,
+      "color": 16,
       "stacks": false
     },
     "knightBlackChess": {
       "char": "♘",
-      "color": 15,
+      "color": 16,
       "stacks": false
     },
     "pawnBlackChess": {
       "char": "♙",
-      "color": 15,
+      "color": 16,
       "stacks": false
     },
     
@@ -419,12 +419,12 @@
     
     "blackChecker": {
       "char": "⛀",
-      "color": 15,
+      "color": 16,
       "roll": ["blackCheckerKing"]
     },
     "blackCheckerKing": {
       "char": "⛁",
-      "color": 15,
+      "color": 16,
       "roll": ["blackChecker"]
     },
     "whiteChecker": {

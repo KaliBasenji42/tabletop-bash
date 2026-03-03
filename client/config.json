@@ -1,6 +1,16 @@
 {
-  "Custom Rendering": "comment",
-  "customRendering": {
+  "List of file paths for Custom Rendering": "comment",
+  "customRendering": [
     
-  }
+  ],
+  
+  "Wether to enable character whitelist": "comment",
+  "enableCharWhitelist": false,
+  
+  "Whitelist (string) of allowed characters to render": "comment",
+  "charWhitelist": "abcdefghijclmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890-=!@#$%^&*()_+,./<>?;':\"[]\\{}|`~",
+  
+  "Base case character for character whitelist": "comment",
+  "baseChar": "?",
+  "baseCharColor": 10
 }
