@@ -353,6 +353,8 @@
       "flip": "flippedCard"
     },
     
+    
+    
     "kingWhiteChess": {
       "char": "♚",
       "color": 16,
@@ -417,16 +419,6 @@
     
     
     
-    "blackChecker": {
-      "char": "⛀",
-      "color": 16,
-      "roll": ["blackCheckerKing"]
-    },
-    "blackCheckerKing": {
-      "char": "⛁",
-      "color": 16,
-      "roll": ["blackChecker"]
-    },
     "whiteChecker": {
       "char": "⛂",
       "color": 16,
@@ -436,6 +428,16 @@
       "char": "⛃",
       "color": 16,
       "roll": ["whiteChecker"]
+    },
+    "blackChecker": {
+      "char": "⛀",
+      "color": 16,
+      "roll": ["blackCheckerKing"]
+    },
+    "blackCheckerKing": {
+      "char": "⛁",
+      "color": 16,
+      "roll": ["blackChecker"]
     },
     
     

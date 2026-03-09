@@ -67,7 +67,10 @@ Press "x" to exit
 │   ├── app.log <i>- Log file</i>
 │   ├── config.json <i>- Config file</i>
 │   ├── __main__.py <i>- Main program source script</i>
-│   └── __main__ <i>- Main program binary*</i>
+│   ├── __main__ <i>- Main program binary*</i>
+│   └── rendering <i>- Folder for custom rendering data</i>
+│       ├── high-contrast.json <i>- High contrast colors</i>
+│       └── non-special.json <i>- For terminals that can't render special characters</i>
 ├── host <i>- Folder for host server program</i>
 │   ├── app.log <i>- Log file</i>
 │   ├── config.json <i>- Config file</i>
@@ -159,6 +162,28 @@ Config file `config.json` in host folder.
 
 Config file `config.json` in client folder.  
 
+```JSON
+{
+  "List of file paths for Custom Rendering": "comment",
+  "customRendering": [
+    // List of file paths
+    // Relative to `__main__.py` (Remember to add `rendering/`)
+    // Processes in order listed, last file is dominant
+  ],
+  
+  "Wether to enable character whitelist": "comment",
+  "enableCharWhitelist": false,
+  
+  "Whitelist (string) of allowed characters to render": "comment",
+  "charWhitelist": "abcdefghijclmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890-=!@#$%^&*()_+,./<>?;':\"[]\\{}|`~",
+  // By Default: All text characters on my keyboard
+  
+  "Base case character for character whitelist": "comment",
+  "baseChar": "?",
+  "baseCharColor": 10
+}
+```
+
 <span id="color-key"></span>
 
 **Color Key:**  
@@ -182,7 +207,7 @@ Config file `config.json` in client folder.
 | 15  | Bright Cyan    |
 | 16  | Bright White   |
 
-### Custom Renderings Look
+### Custom Renderings' Look
 
 **Default:**  
 
@@ -203,8 +228,8 @@ Chess:
 
 Checkers:  
 
-<span style="color: rgb(240,240,240)">⛀⛁</span>  
 <span style="color: rgb(240,240,240)">⛂⛃</span>  
+<span style="color: rgb(240,240,240)">⛀⛁</span>  
 
 Dice:  
 
@@ -229,8 +254,8 @@ Chess:
 
 Checkers:  
 
-<span style="color: rgb(240,240,240)">⛀⛁</span>  
-<span style="color: rgb(0,240,240)"  >⛂⛃</span>  
+<span style="color: rgb(240,240,240)">⛂⛃</span>  
+<span style="color: rgb(0,240,240)"  >⛀⛁</span>  
 
 Dice:  
 

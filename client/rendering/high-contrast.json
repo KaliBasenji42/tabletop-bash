@@ -1,0 +1,354 @@
+{
+  "aceSpade": {
+    "char": "🂡",
+    "color": 16
+  },
+  "2Spade": {
+    "char": "🂢",
+    "color": 16
+  },
+  "3Spade": {
+    "char": "🂣",
+    "color": 16
+  },
+  "4Spade": {
+    "char": "🂤",
+    "color": 16
+  },
+  "5Spade": {
+    "char": "🂥",
+    "color": 16
+  },
+  "6Spade": {
+    "char": "🂦",
+    "color": 16
+  },
+  "7Spade": {
+    "char": "🂧",
+    "color": 16
+  },
+  "8Spade": {
+    "char": "🂨",
+    "color": 16
+  },
+  "9Spade": {
+    "char": "🂩",
+    "color": 16
+  },
+  "10Spade": {
+    "char": "🂪",
+    "color": 16
+  },
+  "jackSpade": {
+    "char": "🂫",
+    "color": 16
+  },
+  "knightSpade": {
+    "char": "🂬",
+    "color": 16
+  },
+  "queenSpade": {
+    "char": "🂭",
+    "color": 16
+  },
+  "kingSpade": {
+    "char": "🂮",
+    "color": 16
+  },
+  
+  "aceHeart": {
+    "char": "🂱",
+    "color": 10
+  },
+  "2Heart": {
+    "char": "🂲",
+    "color": 10
+  },
+  "3Heart": {
+    "char": "🂳",
+    "color": 10
+  },
+  "4Heart": {
+    "char": "🂴",
+    "color": 10
+  },
+  "5Heart": {
+    "char": "🂵",
+    "color": 10
+  },
+  "6Heart": {
+    "char": "🂶",
+    "color": 10
+  },
+  "7Heart": {
+    "char": "🂷",
+    "color": 10
+  },
+  "8Heart": {
+    "char": "🂸",
+    "color": 10
+  },
+  "9Heart": {
+    "char": "🂹",
+    "color": 10
+  },
+  "10Heart": {
+    "char": "🂺",
+    "color": 10
+  },
+  "jackHeart": {
+    "char": "🂻",
+    "color": 10
+  },
+  "knightHeart": {
+    "char": "🂼",
+    "color": 10
+  },
+  "queenHeart": {
+    "char": "🂽",
+    "color": 10
+  },
+  "kingHeart": {
+    "char": "🂾",
+    "color": 10
+  },
+  
+  "aceDiamond": {
+    "char": "🃁",
+    "color": 13
+  },
+  "2Diamond": {
+    "char": "🃂",
+    "color": 13
+  },
+  "3Diamond": {
+    "char": "🃃",
+    "color": 13
+  },
+  "4Diamond": {
+    "char": "🃄",
+    "color": 13
+  },
+  "5Diamond": {
+    "char": "🃅",
+    "color": 13
+  },
+  "6Diamond": {
+    "char": "🃆",
+    "color": 13
+  },
+  "7Diamond": {
+    "char": "🃇",
+    "color": 13
+  },
+  "8Diamond": {
+    "char": "🃈",
+    "color": 13
+  },
+  "9Diamond": {
+    "char": "🃉",
+    "color": 13
+  },
+  "10Diamond": {
+    "char": "🃊",
+    "color": 13
+  },
+  "jackDiamond": {
+    "char": "🃋",
+    "color": 13
+  },
+  "knightDiamond": {
+    "char": "🃌",
+    "color": 13
+  },
+  "queenDiamond": {
+    "char": "🃍",
+    "color": 13
+  },
+  "kingDiamond": {
+    "char": "🃎",
+    "color": 13
+  },
+  
+  "aceClub": {
+    "char": "🃑",
+    "color": 11
+  },
+  "2Club": {
+    "char": "🃒",
+    "color": 11
+  },
+  "3Club": {
+    "char": "🃓",
+    "color": 11
+  },
+  "4Club": {
+    "char": "🃔",
+    "color": 11
+  },
+  "5Club": {
+    "char": "🃕",
+    "color": 11
+  },
+  "6Club": {
+    "char": "🃖",
+    "color": 11
+  },
+  "7Club": {
+    "char": "🃗",
+    "color": 11
+  },
+  "8Club": {
+    "char": "🃘",
+    "color": 11
+  },
+  "9Club": {
+    "char": "🃙",
+    "color": 11
+  },
+  "10Club": {
+    "char": "🃚",
+    "color": 11
+  },
+  "jackClub": {
+    "char": "🃛",
+    "color": 11
+  },
+  "knightClub": {
+    "char": "🃜",
+    "color": 11
+  },
+  "queenClub": {
+    "char": "🃝",
+    "color": 11
+  },
+  "kingClub": {
+    "char": "🃞",
+    "color": 11
+  },
+  
+  "jokerBlack": {
+    "char": "🃟",
+    "color": 16
+  },
+  "jokerRed": {
+    "char": "🃟",
+    "color": 10
+  },
+  
+  
+  "flippedCard": {
+    "char": "🂠",
+    "color": 16
+  },
+  
+  
+  
+  "kingWhiteChess": {
+    "char": "♚",
+    "color": 16
+  },
+  "queenWhiteChess": {
+    "char": "♛",
+    "color": 16
+  },
+  "rookWhiteChess": {
+    "char": "♜",
+    "color": 16
+  },
+  "bishopWhiteChess": {
+    "char": "♝",
+    "color": 16
+  },
+  "knightWhiteChess": {
+    "char": "♞",
+    "color": 16
+  },
+  "pawnWhiteChess": {
+    "char": "♟",
+    "color": 16
+  },
+  
+  "kingBlackChess": {
+    "char": "♔",
+    "color": 15
+  },
+  "queenBlackChess": {
+    "char": "♕",
+    "color": 15
+  },
+  "rookBlackChess": {
+    "char": "♖",
+    "color": 15
+  },
+  "bishopBlackChess": {
+    "char": "♗",
+    "color": 15
+  },
+  "knightBlackChess": {
+    "char": "♘",
+    "color": 15
+  },
+  "pawnBlackChess": {
+    "char": "♙",
+    "color": 15
+  },
+  
+  
+  
+  "whiteChecker": {
+    "char": "⛂",
+    "color": 16
+  },
+  "whiteCheckerKing": {
+    "char": "⛃",
+    "color": 16
+  },
+  "blackChecker": {
+    "char": "⛀",
+    "color": 15
+  },
+  "blackCheckerKing": {
+    "char": "⛁",
+    "color": 15
+  },
+  
+  
+  
+  "dice1": {
+    "char": "⚀",
+    "color": 14
+  },
+  "dice2": {
+    "char": "⚁",
+    "color": 14
+  },
+  "dice3": {
+    "char": "⚂",
+    "color": 14
+  },
+  "dice4": {
+    "char": "⚃",
+    "color": 14
+  },
+  "dice5": {
+    "char": "⚄",
+    "color": 14
+  },
+  "dice6": {
+    "char": "⚅",
+    "color": 14
+  },
+  
+  
+  
+  "heart": {
+    "char": "♥",
+    "color": 10
+  },
+  
+  "OwO": {
+    "char": "ẅ",
+    "color": 11
+  }
+}
