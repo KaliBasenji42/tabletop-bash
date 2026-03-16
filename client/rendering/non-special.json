@@ -338,5 +338,40 @@
   "dice6": {
     "char": "6",
     "color": 14
+  },
+  
+  
+  
+  "blackStone": {
+    "char": "@",
+    "color": 9
+  },
+  "redStone": {
+    "char": "@",
+    "color": 10
+  },
+  "greenStone": {
+    "char": "@",
+    "color": 11
+  },
+  "yellowStone": {
+    "char": "@",
+    "color": 12
+  },
+  "blueStone": {
+    "char": "@",
+    "color": 13
+  },
+  "magentaStone": {
+    "char": "@",
+    "color": 14
+  },
+  "cyanStone": {
+    "char": "@",
+    "color": 15
+  },
+  "whiteStone": {
+    "char": "@",
+    "color": 16
   }
 }

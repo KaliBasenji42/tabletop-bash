@@ -235,6 +235,17 @@ Dice:
 
 <span style="color: rgb(240,240,240)">⚀⚁⚂⚃⚄⚅</span>  
 
+Stones:  
+
+<span style="color: rgb(128,128,128)">●</span>
+<span style="color: rgb(240,0,0)    ">●</span>
+<span style="color: rgb(0,240,0)    ">●</span>
+<span style="color: rgb(240,240,0)  ">●</span>
+<span style="color: rgb(0,0,240)    ">●</span>
+<span style="color: rgb(240,0,240)  ">●</span>
+<span style="color: rgb(0,240,240)  ">●</span>
+<span style="color: rgb(240,240,240)">●</span>  
+
 **`high-contrast.json`:**  
 
 Cards:  
@@ -260,6 +271,17 @@ Checkers:
 Dice:  
 
 <span style="color: rgb(240,0,240)">⚀⚁⚂⚃⚄⚅</span>  
+
+Stones:  
+
+<span style="color: rgb(128,128,128)">●</span>
+<span style="color: rgb(240,0,0)    ">●</span>
+<span style="color: rgb(0,240,0)    ">●</span>
+<span style="color: rgb(240,240,0)  ">●</span>
+<span style="color: rgb(0,0,240)    ">●</span>
+<span style="color: rgb(240,0,240)  ">●</span>
+<span style="color: rgb(0,240,240)  ">●</span>
+<span style="color: rgb(240,240,240)">●</span>  
 
 **`non-special.json`:**  
 
@@ -290,6 +312,17 @@ Checkers:
 Dice:  
 
 <span style="color: rgb(240,0,240)">123456</span>  
+
+Stones:  
+
+<span style="color: rgb(128,128,128)">@</span>
+<span style="color: rgb(240,0,0)    ">@</span>
+<span style="color: rgb(0,240,0)    ">@</span>
+<span style="color: rgb(240,240,0)  ">@</span>
+<span style="color: rgb(0,0,240)    ">@</span>
+<span style="color: rgb(240,0,240)  ">@</span>
+<span style="color: rgb(0,240,240)  ">@</span>
+<span style="color: rgb(240,240,240)">@</span>  
 
 # Network
 

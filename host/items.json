@@ -481,6 +481,49 @@
     
     
     
+    "blackStone": {
+      "char": "●",
+      "color": 9,
+      "stacks": false
+    },
+    "redStone": {
+      "char": "●",
+      "color": 10,
+      "stacks": false
+    },
+    "greenStone": {
+      "char": "●",
+      "color": 11,
+      "stacks": false
+    },
+    "yellowStone": {
+      "char": "●",
+      "color": 12,
+      "stacks": false
+    },
+    "blueStone": {
+      "char": "●",
+      "color": 13,
+      "stacks": false
+    },
+    "magentaStone": {
+      "char": "●",
+      "color": 14,
+      "stacks": false
+    },
+    "cyanStone": {
+      "char": "●",
+      "color": 15,
+      "stacks": false
+    },
+    "whiteStone": {
+      "char": "●",
+      "color": 16,
+      "stacks": false
+    },
+    
+    
+    
     "heart": {
       "char": "♥",
       "color": 10,
