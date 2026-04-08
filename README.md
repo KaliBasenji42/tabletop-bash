@@ -1,6 +1,7 @@
 <style>
   img {max-height: 32rem;}
   body {background-color: rgb(32, 32, 32); color: rgb(240, 240, 240);}
+  pre {white-space: pre; overflow-x: scroll; line-height: 1.2em}
 </style>
 
 # General
@@ -46,7 +47,7 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 # Client UI
 
 Help Text:  
-<pre style="white-space: pre; overflow-x: scroll;">
+<pre>
 wasd: Move/Navigate
 e: Select
 x: Cancel
@@ -61,7 +62,7 @@ Press "x" to exit
 
 # File Structure
 
-<pre style="white-space: pre; overflow-x: scroll;">
+<pre>
 .
 ├── client <i>- Folder for client program</i>
 │   ├── app.log <i>- Log file</i>

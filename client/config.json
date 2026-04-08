@@ -1,7 +1,7 @@
 {
   "List of file paths for Custom Rendering": "comment",
   "customRendering": [
-    
+    "rendering/high-contrast.json"
   ],
   
   "Wether to enable character whitelist": "comment",
@@ -11,6 +11,5 @@
   "charWhitelist": "abcdefghijclmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890-=!@#$%^&*()_+,./<>?;':\"[]\\{}|`~",
   
   "Base case character for character whitelist": "comment",
-  "baseChar": "?",
-  "baseCharColor": 10
+  "baseChar": "?"
 }

@@ -50,6 +50,12 @@ message = '' # Chat message to send
 chatLog = [] # 2D array of strings, containing the chat log
 # Note: Sent as json string
 
+# Render
+
+enableCharWhitelist = False # Wether to enable Character Whitelist
+charWhitelist = [] # Whitelist of characters that can be rendered
+baseChar = '?' # Character to render if one is not in whitelist
+
 # Control
 
 spf = 1/20 # Second per Frames
@@ -120,13 +126,47 @@ def readConfig(): # Read config file
   
   global customRendering
   
+  global enableCharWhitelist
+  global charWhitelist
+  global baseChar
+  
   # Read Files
   
   with open(configPath, 'r') as file: data = json.loads(file.read())
   
   # Set variables
   
-  customRendering = data['customRendering']
+  enableCharWhitelist = data['enableCharWhitelist']
+  charWhitelist = data['charWhitelist']
+  baseChar = data['baseChar']
+  
+  # Custom Rendering
+  
+  for path in data['customRendering']: # Each path
+    
+    try:
+      
+      with open(path, 'r') as file: # Read file
+        
+        fileJson = json.loads(file.read()) # Complete JSON object of file
+        
+        for key in fileJson: # Each JSON object key
+          
+          try: # Try
+            
+            customRendering[key] = fileJson[key] # Set
+            
+          
+          except: pass # Skip if error
+          
+        
+      
+    
+    except: # Error
+      logging.exception('File Read Error (Custom Rendering)') # Logging
+    
+  
+  logging.debug('Custom Rendering:\n' + str(customRendering))
   
 
 # Network
@@ -158,6 +198,43 @@ def processMessage(message): # Processes network messages and updates game state
 def renderTable(): # Takes tableState and redraws tableGrid for rendering
   
   pass
+  
+
+def addstr(stdscr, y, x, string, attr = 0):
+  
+  # Global Variables
+  
+  global enableCharWhitelist
+  global charWhitelist
+  global baseChar
+  
+  # Variables
+  
+  outStr = '' # Validated string
+  
+  # Main If
+  
+  if enableCharWhitelist: # If Character Whitelist Enabled
+    
+    for char in string: # Each character
+      
+      if char in charWhitelist: # IF valid...
+        outStr += char # ...add
+      
+      else: # Else...
+        outStr += '?' # ...add baseChar
+      
+    
+  
+  else: # Else, not enabled
+    outStr = string # Input string
+  
+  # Out
+  
+  stdscr.addstr(
+    y, x,
+    outStr, attr
+  )
   
 
 def render(stdscr): # Render screen
@@ -192,7 +269,8 @@ def render(stdscr): # Render screen
     
     for row in helpText: # Each text row
       
-      stdscr.addstr( # Output row
+      addstr( # Output row
+        stdscr,
         contextWindow.y + 1 + rowNum,
         contextWindow.x + 1,
         row
@@ -241,12 +319,14 @@ def render(stdscr): # Render screen
     
     if chatArr[i][2] == 'msgCont': # Type is message content (no UN)
       
-      stdscr.addstr( # '>'
+      addstr( # '>'
+        stdscr,
         chatWindow.y + i + 1, chatWindow.x + 1,
         '>', curses.color_pair(15) # Cyan
       )
       
-      stdscr.addstr( # Content
+      addstr( # Content
+        stdscr,
         chatWindow.y + i + 1, chatWindow.x + 3,
         chatArr[i][1]
       )
@@ -254,12 +334,17 @@ def render(stdscr): # Render screen
     
     else: # Not message content (render UN)
       
-      stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + 1, '[') # UN '['
-      stdscr.addstr( # UN
+      addstr(
+        stdscr, chatWindow.y + i + 1, chatWindow.x + 1, '['
+      ) # UN '['
+      addstr( # UN
+        stdscr,
         chatWindow.y + i + 1, chatWindow.x + 2, 
         UN, curses.color_pair(11) # Green
       )
-      stdscr.addstr(chatWindow.y + i + 1, chatWindow.x + lenUN + 2, ']:') # UN ']'
+      addstr(
+        stdscr, chatWindow.y + i + 1, chatWindow.x + lenUN + 2, ']:'
+      ) # UN ']'
       
     
     # Message content that is not a message
@@ -268,7 +353,8 @@ def render(stdscr): # Render screen
       
       if chatArr[i][1] == 'Joined': # Join message
         
-        stdscr.addstr(
+        addstr(
+          stdscr,
           chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
           chatArr[i][1], curses.color_pair(13) # Blue
         )
@@ -276,7 +362,8 @@ def render(stdscr): # Render screen
       
       elif chatArr[i][1] == 'Left': # Left message
         
-        stdscr.addstr(
+        addstr(
+          stdscr,
           chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
           chatArr[i][1], curses.color_pair(12) # Yellow
         )
@@ -284,7 +371,8 @@ def render(stdscr): # Render screen
       
       elif chatArr[i][1] == 'Changed UN': # Changed username
         
-        stdscr.addstr(
+        addstr(
+          stdscr,
           chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
           chatArr[i][1], curses.color_pair(14) # Magenta
         )
@@ -293,7 +381,8 @@ def render(stdscr): # Render screen
     
     elif chatArr[i][2] == 'buzz': # Type is buzzer
       
-      stdscr.addstr(
+      addstr(
+        stdscr,
         chatWindow.y + i + 1, chatWindow.x + lenUN + 5,
         chatArr[i][1], curses.color_pair(10) # Red
       )
@@ -462,7 +551,8 @@ class menu:
       option = (str(i+1) + '. ' + self.options[i])[:contextWindow.width - 2]
       # Option string
       
-      stdscr.addstr( # Render
+      addstr( # Render
+        stdscr,
         contextWindow.y + 1 + i, contextWindow.x + 1,
         option
       )
@@ -474,7 +564,8 @@ class menu:
           len(option), curses.A_REVERSE
         )
         
-        stdscr.addstr( # Description
+        addstr( # Description
+          stdscr,
           contextWindow.y + contextWindow.height - 2, contextWindow.x + 1,
           self.optionDetails[i][:contextWindow.width - 2]
         )
