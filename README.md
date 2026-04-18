@@ -12,6 +12,7 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 > **IMPORTANT:**  
 > Do not share your IP address with people you do not trust.  
 > This (currently) uses very simple network architecture, and may not be the must secure, this software is for entertainment purposes.  
+> This software comes with no warranty.
 
 ## Table of Contents
 
@@ -29,7 +30,7 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 2. Configure your device IP and Port in `config.json`
     - Ensure your clients can access this IP and Port, you may need to disable your firewall on the given port.
     - If your clients are outside your local network, you may need to forward your port (DO AT YOUR OWN RISK!) (Tunneling may be more secure, do your own networking). 
-3. Run `__main__` (type `./__main__` in terminal)
+3. Run `__main__`
 4. Press \[ctrl + c\] to quit
 5. Run `manager` (in a new terminal window/device) to send manage the server
     - See [Network](#network) for more details
@@ -38,7 +39,7 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 ## Client
 
 1. Move to `./client/`
-2. Run `__main__` (type `./__main__` in terminal)
+2. Run `__main__`
 3. Input the host IP and Port
 4. Input your username
     - This can by **any** string (including someone else's), you can press 'u' to change it at any point in the game
@@ -84,7 +85,7 @@ Press "x" to exit
 └── README.md <i>- This file</i>
 </pre>
 
-\* Binary files are packaged using manylinux2014_x86_64 (CentOS), with Python 3.12 Pyinstaller.  
+\* Binary files are packaged using manylinux2014_x86_64 (`rocm/dev-manylinux2014_x86_64` docker image), with Python 3.12.12 Pyinstaller.  
 \*\* File that defines the table items.  
 
 # Data Files
@@ -181,7 +182,15 @@ Config file `config.json` in client folder.
   
   "Base case character for character whitelist": "comment",
   "baseChar": "?",
-  "baseCharColor": 10
+  "baseCharColor": 10,
+  
+  "Wether to sort inventory, otherwise will be in the order added": "comment",
+  "enableSort": false,
+  
+  "Order to sort inventory by, unspecified will sort alphabetically at end": "comment",
+  "sortOrder": [
+    // Default is copied from the order in the item default json
+  ]
 }
 ```
 

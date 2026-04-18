@@ -7,7 +7,7 @@
 
 # You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# License: ./LICENSE.md
+# License: ../LICENSE.md
 # GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # KaliBasenji42's Github: https://github.com/KaliBasenji42
 
@@ -252,7 +252,6 @@ def render(stdscr): # Render screen
   for window in windows:
     window.renderBackground(stdscr)
   
-  
   ### Menus ###
   
   for menu in menus: # For each menu
@@ -417,7 +416,7 @@ class window:
     self.y = y
     self.width = width
     self.height = height
-    self.title = title
+    self.title = title[:width-2]
     
   
   def generateBackground(self): # Generate background array, set to self
@@ -543,7 +542,7 @@ class menu:
     return -1 # Base Case
     
   
-  def render(self, stdscr): # Render on context
+  def render(self, stdscr, msg=""): # Render on context
     
     for i in range(min(len(self.options), contextWindow.height - 3)):
       # Each option, within contextWindow height
@@ -591,11 +590,43 @@ mainMenu = menu(
   ]
 )
 
-menus = [mainMenu]
+tableMenu = menu( # Menu for items on table
+  [
+    'Place',
+    'Grab',
+    'Move',
+    'Grab Stack',
+    'Grab Each',
+    'Move Stack',
+    'Shuffle',
+    'Roll'
+  ],
+  [
+    'Place item from inventory. Places on top if stack',
+    'Add item to inventory. "f" to flip. Grabs top if stack',
+    'Moves item. "f" to flip. Top if stack',
+    'Add entire stack to inventory',
+    'Grab each card from stack (separately)',
+    'Move entire stack',
+    'Shuffle stack',
+    'Roll item'
+  ]
+)
 
-# Item
+inventoryMenu = menu( # Menu for items in inventory
+  [
+    'Place',
+    'Shuffle',
+    'Roll'
+  ],
+  [
+    'Place item from inventory. "f" to flip. Places on top if stack',
+    'Shuffle stack',
+    'Roll item'
+  ]
+)
 
-
+menus = [mainMenu, tableMenu]
 
 # Network
 
@@ -728,7 +759,7 @@ Copyright (C) 2026 KaliBasenji42
 Tabletop Bash comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under certain conditions.
 
-License: ./LICENSE.md
+License: ../LICENSE.md
 GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 KaliBasenji42's Github: https://github.com/KaliBasenji42
 
@@ -736,6 +767,21 @@ NOTE: Press 'h' for help menu once connected
 """
 
 print(title)
+
+# Read Files
+
+try:
+  
+  readConfig()
+  
+except Exception as e:
+  
+  logging.exception('File Read Error') # Logging
+  
+  print('\033[97;41mCould Not Read File\033[0m') # Error message
+  
+  quit() # Quit
+  
 
 # Server
 
@@ -753,21 +799,6 @@ except Exception as e:
   logging.exception('Connection Error') # Logging
   
   print('\033[97;41mConnection Error\033[0m\n' + str(e)) # Error message
-  
-  quit() # Quit
-  
-
-# Read Files
-
-try:
-  
-  readConfig()
-  
-except Exception as e:
-  
-  logging.exception('File Read Error') # Logging
-  
-  print('\033[97;41mCould Not Read File\033[0m') # Error message
   
   quit() # Quit
   
@@ -903,6 +934,11 @@ def main(stdscr):
         run = False
       
     
+    elif tableMenu.active:
+      
+      selectedOption = tableMenu.key(key)
+      
+    
     # Quit
     
     elif key == ord('q'):
@@ -922,6 +958,11 @@ def main(stdscr):
     elif key == ord('a'): selected = (selected[0], selected[1] - 1)
     
     # Other keys
+    
+    elif key == ord('e') and not termTooSmall: # Select space
+      
+      tableMenu.active = True
+      
     
     elif key == ord('x') and not termTooSmall: # Cancel / Exit below/misc
       

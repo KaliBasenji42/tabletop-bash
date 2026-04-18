@@ -7,7 +7,7 @@
 
 # You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# License: ./LICENSE.md
+# License: ../LICENSE.md
 # GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 # KaliBasenji42's Github: https://github.com/KaliBasenji42
 
@@ -196,7 +196,7 @@ Copyright (C) 2026 KaliBasenji42
 Tabletop Bash comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under certain conditions.
 
-License: ./LICENSE.md
+License: ../LICENSE.md
 GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 KaliBasenji42's Github: https://github.com/KaliBasenji42
 

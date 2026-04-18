@@ -11,5 +11,13 @@
   "charWhitelist": "abcdefghijclmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890-=!@#$%^&*()_+,./<>?;':\"[]\\{}|`~",
   
   "Base case character for character whitelist": "comment",
-  "baseChar": "?"
+  "baseChar": "?",
+  
+  "Wether to sort inventory, otherwise will be in the order added": "comment",
+  "enableSort": false,
+  
+  "Order to sort inventory by, unspecified will sort alphabetically at end": "comment",
+  "sortOrder": [
+    "aceSpade", "2Spade", "3Spade", "4Spade", "5Spade", "6Spade", "7Spade", "8Spade", "9Spade", "10Spade", "jackSpade", "knightSpade", "queenSpade", "kingSpade", "aceHeart", "2Heart", "3Heart", "4Heart", "5Heart", "6Heart", "7Heart", "8Heart", "9Heart", "10Heart", "jackHeart", "knightHeart", "queenHeart", "kingHeart", "aceDiamond", "2Diamond", "3Diamond", "4Diamond", "5Diamond", "6Diamond", "7Diamond", "8Diamond", "9Diamond", "10Diamond", "jackDiamond", "knightDiamond", "queenDiamond", "kingDiamond", "aceClub", "2Club", "3Club", "4Club", "5Club", "6Club", "7Club", "8Club", "9Club", "10Club", "jackClub", "knightClub", "queenClub", "kingClub", "jokerBlack", "jokerRed", "kingWhiteChess", "queenWhiteChess", "rookWhiteChess", "bishopWhiteChess", "knightWhiteChess", "pawnWhiteChess", "kingBlackChess", "queenBlackChess", "rookBlackChess", "bishopBlackChess", "knightBlackChess", "pawnBlackChess", "whiteChecker", "whiteCheckerKing", "blackChecker", "blackCheckerKing", "dice1", "dice2", "dice3", "dice4", "dice5", "dice6", "blackStone", "redStone", "greenStone", "yellowStone", "blueStone", "magentaStone", "cyanStone", "whiteStone"
+  ]
 }
