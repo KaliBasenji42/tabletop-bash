@@ -126,6 +126,7 @@ def readConfig(): # Read config file
   
   global customRendering
   
+  global spf
   global enableCharWhitelist
   global charWhitelist
   global baseChar
@@ -136,6 +137,7 @@ def readConfig(): # Read config file
   
   # Set variables
   
+  spf = 1 / data["fps"]  
   enableCharWhitelist = data['enableCharWhitelist']
   charWhitelist = data['charWhitelist']
   baseChar = data['baseChar']

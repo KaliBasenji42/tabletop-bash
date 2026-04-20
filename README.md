@@ -166,6 +166,9 @@ Config file `config.json` in client folder.
 
 ```JSON
 {
+  "Frames per second cap": "comment",
+  "fps": 20,
+  
   "List of file paths for Custom Rendering": "comment",
   "customRendering": [
     // List of file paths
@@ -181,8 +184,7 @@ Config file `config.json` in client folder.
   // By Default: All text characters on my keyboard
   
   "Base case character for character whitelist": "comment",
-  "baseChar": "?",
-  "baseCharColor": 10,
+  "baseChar": "?", // Character that replaces characters not in whitelist
   
   "Wether to sort inventory, otherwise will be in the order added": "comment",
   "enableSort": false,

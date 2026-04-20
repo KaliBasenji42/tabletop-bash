@@ -146,7 +146,7 @@ def readItems(): # Read item file
     
     item = data['items'][itemKey] # Get item
     
-    print(itemKey, end='", "')
+    #print(itemKey, end='", "')
     
     # Default Render
     

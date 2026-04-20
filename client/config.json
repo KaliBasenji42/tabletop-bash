@@ -1,4 +1,7 @@
 {
+  "Frames per second cap": "comment",
+  "fps": 20,
+  
   "List of file paths for Custom Rendering": "comment",
   "customRendering": [
     "rendering/high-contrast.json"
