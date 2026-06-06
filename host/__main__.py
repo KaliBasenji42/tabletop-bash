@@ -48,11 +48,12 @@ managers = [] # Whitelist of managers
 
 clients = [] # Array of client connections
 clientsLock = threading.RLock() # Thread lock for clients 
-# Lock ensures threads play nice with global value
+# Lock ensures threads play nice with global values
 
 serverQueue = queue.Queue() # Queue to process all client messages
 
 usernames = {} # Dictionary of usernames
+inventories = {} # Dictionary of arrays of users' inventories
 
 # Control
 
@@ -64,7 +65,10 @@ run.set()
 chatLog = [] # Array of tuples of strings (user, message, type), containing the chat log
 chatLength = 20 # Max chat log length
 
-tableState = [] # 3D Array of objects on the table
+tableState = {
+  'objects': [], # 3D Array of objects {item: "name", flipped: bool} on the table
+  'color': [] # 2D Array of the color of the table
+}
 
 items = {} # Dictionary of default items
 defaultRender = {} # Dictionary of default rendering
@@ -294,7 +298,9 @@ def kickAddr(addr): # Disconnect specific address
     
   
 
-def generateChatLog(chatLog): # Generate string to send for chat log
+# Data
+
+def generateChatLog(chatLog): # Generates string to send for chat log
   
   global usernames
   
@@ -314,6 +320,43 @@ def generateChatLog(chatLog): # Generate string to send for chat log
   outStr = json.dumps(out) # Output string
   
   return outStr # Return
+  
+
+def generateTableLook(tableState): # Generates string to send for table look
+  
+  tableLook = {
+    objects: [], # 2D Array of objects faces on the table
+    color: [] # 2D Array of the color of the table
+  } # Sent to client (such that hidden things stay hidden)
+  
+  # Set color (match exactly)
+  
+  for row in tableState.color:
+    
+    for color in row:
+      
+      tableLook.color.append(color)
+      
+    
+  
+  # Set objects
+  
+  for row in tableState.objects:
+    
+    for stack in row:
+      
+      obj = {item: '', flipped: False} # Default item object
+      
+      if len(stack) > 0: obj = stack[0] # Set object to first in stack
+      
+      item = obj.item # Item name to return
+      
+      if(obj.flipped): # If flipped...
+        item = items[obj.item].flip # ...set to item's flip item
+      
+      tableLook.objects.append(item) # Append
+      
+    
   
 
 ### (Other) Threads ###
@@ -497,6 +540,23 @@ except Exception as e:
   print('\033[97;41mSocket Bind Error\033[0m\n' + str(e))
   
   quit() # Exit
+  
+
+# Generate Table
+
+for i in range(32):
+  
+  colorRow = []
+  objectRow = []
+  
+  for j in range(64):
+    
+    colorRow.append('1')
+    objectRow.append([])
+    
+  
+  tableState['color'].append(colorRow)
+  tableState['objects'].append(objectRow)
   
 
 ### Main Loop ###

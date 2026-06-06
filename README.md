@@ -9,10 +9,17 @@
 This is Python project that emulates tabletop games with bash rendering.  
 It uses Curses for terminal rendering and Socket (TCP) for networking.  
 
+Binary files are packaged for Linux systems after 2014 and using an x86_64 architecture. Although one can always run the python script itself (`__main__.py`) rather than the binary (`__main__`). Python version 3.12.11 and newer should work.  
+
+Since this software uses Curses, it will problem not work on Window devices. Although I am sure there are forks of Curses that work on Windows. Feel free to edit the code, thats what the GPL v2 License is for :3 (I don't use Windows and don't plan to make it compatible myself).  
+
 > **IMPORTANT:**  
 > Do not share your IP address with people you do not trust.  
-> This (currently) uses very simple network architecture, and may not be the must secure, this software is for entertainment purposes.  
-> This software comes with no warranty.
+> And forwarding your IP outside of a local network is risky.    
+> This (currently) uses very simple network architecture, and may not be the most secure.  
+> This software comes with **no warranty**.  
+
+Note that GitHub breaks CSS, so colors may not be shown.  
 
 ## Table of Contents
 
@@ -31,10 +38,10 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
     - Ensure your clients can access this IP and Port, you may need to disable your firewall on the given port.
     - If your clients are outside your local network, you may need to forward your port (DO AT YOUR OWN RISK!) (Tunneling may be more secure, do your own networking). 
 3. Run `__main__`
-4. Press \[ctrl + c\] to quit
-5. Run `manager` (in a new terminal window/device) to send manage the server
+4. Press [ctrl + c] to quit
+5. Run `manager` (in a new terminal window/device) to connect as Manager client
     - See [Network](#network) for more details
-6. Enter "quit" to quit
+    - Send "quit" as manager to exit
 
 ## Client
 
@@ -85,7 +92,7 @@ Press "x" to exit
 └── README.md <i>- This file</i>
 </pre>
 
-\* Binary files are packaged using manylinux2014_x86_64 (`rocm/dev-manylinux2014_x86_64` docker image), with Python 3.12.12 Pyinstaller.  
+\* Binary files are packaged using manylinux2014_x86_64 (`quay.io/pypa/manylinux2014_x86_64` docker image), with Python 3.12.11.  
 \*\* File that defines the table items.  
 
 # Data Files
@@ -110,7 +117,7 @@ Config file `config.json` in host folder.
     "127.0.0.1"
   ],
   
-  "Black;ist, list IPs": "comment",
+  "Blacklist, list IPs": "comment",
   "blacklist": [ // List of IPs to blacklist
     
   ],
@@ -220,6 +227,8 @@ Config file `config.json` in client folder.
 | 16  | Bright White   |
 
 ### Custom Renderings' Look
+
+> NOTE: GitHub breaks CSS, so colors will not show up if you are using GitHub.  
 
 **Default:**  
 
@@ -347,7 +356,7 @@ The following describes how the host server behaves when receiving the respectiv
 Signifies that a client is disconnected.  
 
 Sends the following in chat:  
-\[*UN*\]: Left
+[*UN*]: Left
 
 > Sent internally  
 
@@ -357,7 +366,7 @@ Signifies that a client has joined.
 Updates `username` dictionary with the client's address as *UN*.  
 
 Sends the following in chat:  
-\[*UN*\]: Joined  
+[*UN*]: Joined  
 
 **"un:*UN*":**  
 
@@ -365,21 +374,21 @@ Signifies that a client has changed their username.
 Updates `username` dictionary with the client's address as *UN*.  
 
 Sends the following in chat:  
-\[*UN*\]: Changed UN
+[*UN*]: Changed UN
 
 **"msg:*message*":**  
 
 Signifies that a client has sent a chat message.  
 
 Sends the following in chat:  
-\[*UN*\]:<br>> *message*  
+[*UN*]:<br>> *message*  
 
 **"buzz:*message*":**  
 
 Signifies that a client has pressed their buzzer.  
 
 Sends the following in chat:  
-\[*UN*\]: *message*  
+[*UN*]: *message*  
 
 Note: The message is normally sent in format "\*Buzzer\* at *time*"  
 *time* being the client's time of day in format "*minutes*:*seconds*.*microsecond*"  

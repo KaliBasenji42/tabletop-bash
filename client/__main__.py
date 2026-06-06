@@ -88,7 +88,10 @@ helpText = [ # Help text array
 
 # Game
 
-tableState = [] # Array of objects on the table (sent from server, updated in thread)
+tableLook = {
+  'objects': [], # 2D Array of objects faces on the table
+  'color': [] # 2D Array of the color of the table
+} # Sent from server, updated in thread
 
 inventoryState = [] # Array of objects in inventory
 
@@ -523,8 +526,9 @@ class menu:
     
     elif key == ord('e'): # Select
       self.active = False # Close
+      out = self.pos # Temp value to return
       self.pos = 0 # Reset Pos
-      return self.pos # Return selected
+      return out # Return selected
     
     elif key == ord('x'): # Cancel
       self.pos = 0 # Reset Pos
@@ -581,6 +585,7 @@ mainMenu = menu(
     'Inventory',
     'Toy Box',
     'Disconnected Inventories',
+    'Paint',
     'Paint Stamps'
   ],
   [
@@ -588,7 +593,8 @@ mainMenu = menu(
     'Scroll through inventory',
     'Add items to inventory',
     'Grab inventories from disconnected clients',
-    'Predefined stamps that paint section of the table'
+    'Color part of the table',
+    'Predefined stamps that paint a section of the table'
   ]
 )
 
@@ -601,7 +607,7 @@ tableMenu = menu( # Menu for items on table
     'Grab Each',
     'Move Stack',
     'Shuffle',
-    'Roll'
+    'Roll',
   ],
   [
     'Place item from inventory. Places on top if stack',
@@ -611,7 +617,7 @@ tableMenu = menu( # Menu for items on table
     'Grab each card from stack (separately)',
     'Move entire stack',
     'Shuffle stack',
-    'Roll item'
+    'Roll item',
   ]
 )
 
@@ -932,6 +938,9 @@ def main(stdscr):
       
       selectedOption = mainMenu.key(key)
       
+      if selectedOption > -1:
+        logging.debug('Main Menu Option: ' + str(selectedOption))
+      
       if selectedOption == 0: # Quit
         run = False
       
@@ -939,6 +948,9 @@ def main(stdscr):
     elif tableMenu.active:
       
       selectedOption = tableMenu.key(key)
+      
+      if selectedOption > -1:
+        logging.debug('Table Menu Option: ' + str(selectedOption))
       
     
     # Quit
