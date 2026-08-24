@@ -37,9 +37,10 @@ Note that GitHub breaks CSS, so colors may not be shown.
 2. Configure your device IP and Port in `config.json`
     - Ensure your clients can access this IP and Port, you may need to disable your firewall on the given port.
     - If your clients are outside your local network, you may need to forward your port (DO AT YOUR OWN RISK!) (Tunneling may be more secure, do your own networking). 
-3. Run `__main__`
-4. Press [ctrl + c] to quit
-5. Run `manager` (in a new terminal window/device) to connect as Manager client
+3. Configure anything else you want (whitelist, blacklist, PIN)
+4. Run `__main__`
+5. Press [ctrl + c] to quit
+6. Run `manager` (in a new terminal window/device) to connect as Manager client
     - See [Network](#network) for more details
     - Send "quit" as manager to exit
 
@@ -48,9 +49,10 @@ Note that GitHub breaks CSS, so colors may not be shown.
 1. Move to `./client/`
 2. Run `__main__`
 3. Input the host IP and Port
-4. Input your username
+4. Input the correct PIN. If none was set for the server, then just press enter (empty string)
+5. Input your username
     - This can by **any** string (including someone else's), you can press 'u' to change it at any point in the game
-5. Press 'q' then 'e' or '1' to quit
+6. Press 'q' then 'e' or '1' to quit
 
 # Client UI
 
@@ -125,7 +127,11 @@ Config file `config.json` in host folder.
   "Allowed managers (whitelist), list IPs": "comment",
   "managers": [ // List of IPs to whitelist for managers
     "127.0.0.1"
-  ]
+  ],
+  
+  "Enable PIN verification": "comment",
+  "enablePin": false // Wether to prompt server for PIN (default is '')
+  
 }
 ```
 
@@ -356,7 +362,7 @@ The following describes how the host server behaves when receiving the respectiv
 Signifies that a client is disconnected.  
 
 Sends the following in chat:  
-[*UN*]: Left
+\[*UN*\]: Left
 
 > Sent internally  
 
@@ -366,7 +372,7 @@ Signifies that a client has joined.
 Updates `username` dictionary with the client's address as *UN*.  
 
 Sends the following in chat:  
-[*UN*]: Joined  
+\[*UN*\]: Joined  
 
 **"un:*UN*":**  
 
@@ -374,21 +380,21 @@ Signifies that a client has changed their username.
 Updates `username` dictionary with the client's address as *UN*.  
 
 Sends the following in chat:  
-[*UN*]: Changed UN
+\[*UN*\]: Changed UN
 
 **"msg:*message*":**  
 
 Signifies that a client has sent a chat message.  
 
 Sends the following in chat:  
-[*UN*]:<br>> *message*  
+\[*UN*\]:<br>> *message*  
 
 **"buzz:*message*":**  
 
 Signifies that a client has pressed their buzzer.  
 
 Sends the following in chat:  
-[*UN*]: *message*  
+\[*UN*\]: *message*  
 
 Note: The message is normally sent in format "\*Buzzer\* at *time*"  
 *time* being the client's time of day in format "*minutes*:*seconds*.*microsecond*"  
