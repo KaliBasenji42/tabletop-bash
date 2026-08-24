@@ -18,6 +18,8 @@ import os
 import time
 import datetime
 import random
+import getpass
+import hashlib
 import socket
 import threading
 import queue
@@ -41,8 +43,13 @@ customRendering = {} # Custom rendering dictionary
 
 # Server
 
+networkTimeout = 1 # Network Timeout time in seconds
+
 host = '127.0.0.1' # Host IP
 port = 65432 # Host Port
+
+pin = '' # PIN
+pinFailed = False # Wether the PIN failed
 
 clientName = '' # Player name
 
@@ -656,8 +663,15 @@ class server:
     
     # Connect
     
-    self.sock.connect(self.addr)
-    self.sock.settimeout(1) # Block for 1 second
+    self.sock.connect(self.addr) # Connect
+    self.sock.settimeout(networkTimeout) # Timeout
+    
+    # PIN
+    
+    nonce = self.sock.recv(2048) # Receive nonce
+    pinResp = hashlib.sha256(pin.encode() + nonce).hexdigest() # Response
+    # Hashed pin + nonce
+    self.sock.sendall(pinResp.encode()) # Send response
     
     # Initial Message
     
@@ -674,7 +688,7 @@ class server:
   
   def send(self, message): # Send to server
     
-    logging.info('Sending: ' + message) # Logging
+    logging.debug('Sending: ' + message) # Logging
     
     try:
       
@@ -710,6 +724,20 @@ class server:
           break # Break
           
         
+        # PIN Fail
+        
+        if data.decode().find('PIN Failed') > -1:
+          
+          global pinFailed
+          pinFailed = True
+          
+          self.disconnect = True # Disconnect
+          
+          logging.debug('PIN Failed') # Logging
+          
+          break # Break
+          
+        
         # Set Queue
         
         self.buffer += data.decode()
@@ -732,7 +760,7 @@ class server:
         
         self.disconnect = True
         
-        logging.info('Disconnected from server\n' + str(e)) # Logging
+        logging.debug('Disconnected from server') # Logging
         
         break # Break if shutdown
         
@@ -795,6 +823,7 @@ except Exception as e:
 
 host = input('Connect to Host:\n\nHost IP: ') # Inputs
 port = strToPosInt(input('Port: '))
+pin = getpass.getpass('PIN (empty if none): ')
 clientName = input('Username: ')
 print()
 
@@ -1106,6 +1135,9 @@ except Exception as e:
 
 if clientServer.disconnect: # Killed due to disconnect?
   print('\033[97;41mDisconnected From Server\033[0m') # Print
+
+if pinFailed: # Killed due to PIN failure?
+  print('\033[30;103mPIN Failed\033[0m') # Print
 
 clientServer.close() # Close server
 

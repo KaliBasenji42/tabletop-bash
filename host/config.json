@@ -11,7 +11,7 @@
     "127.0.0.1"
   ],
   
-  "Black;ist, list IPs": "comment",
+  "Blacklist, list IPs": "comment",
   "blacklist": [
     
   ],
@@ -19,5 +19,9 @@
   "Allowed managers (whitelist), list IPs": "comment",
   "managers": [
     "127.0.0.1"
-  ]
+  ],
+  
+  "Enable PIN verification": "comment",
+  "enablePin": false
+  
 }

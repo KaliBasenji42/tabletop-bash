@@ -13,7 +13,10 @@
 
 ### Imports ###
 
+import os
 import random
+import getpass
+import hashlib
 import socket
 import threading
 import queue
@@ -44,7 +47,12 @@ whitelist = [] # Whitelist
 blacklist = [] # Blacklist
 managers = [] # Whitelist of managers
 
+enablePin = False # Wether to prompt for PIN
+pin = '' # PIN
+
 # Server
+
+networkTimeout = 1 # Network Timeout time in seconds
 
 clients = [] # Array of client connections
 clientsLock = threading.RLock() # Thread lock for clients 
@@ -111,6 +119,8 @@ def readConfig(): # Read config file
   global blacklist
   global managers
   
+  global enablePin
+  
   # Read Files
   
   with open(configPath, 'r') as file: data = json.loads(file.read())
@@ -125,12 +135,15 @@ def readConfig(): # Read config file
   blacklist = data['blacklist']
   managers = data['managers']
   
+  enablePin = data['enablePin']
+  
   # Logging
   
   logging.debug('Whitelist Enabled: ' + str(enableWhitelist))
   logging.debug('Whitelist: ' + str(whitelist))
   logging.debug('Blacklist: ' + str(blacklist))
   logging.debug('Managers: ' + str(managers))
+  logging.debug('PIN Enabled: ' + str(enablePin))
   
 
 def readItems(): # Read item file
@@ -521,6 +534,12 @@ except Exception as e:
   quit() # Exit
   
 
+# PIN
+
+if enablePin:
+  pin = getpass.getpass('Enter PIN: ')
+  print()
+
 # Socket
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Declare socket
@@ -529,7 +548,7 @@ try:
   
   sock.bind((host, port)) # Try bond
   sock.listen(5) # Listen for incoming connections
-  sock.settimeout(1) # Timeout
+  sock.settimeout(networkTimeout) # Timeout
   
   logging.info('Server Started') # Logging
   print('Server Started!\n')
@@ -565,12 +584,14 @@ for i in range(32):
 
 def clientThreadFunction(conn, addr):
   
+  addrStr = addr[0] + ':' + str(addr[1]) # Address as string
+  
   # White/Black list
   
   if(enableWhitelist): # Do whitelist
     
     if(not addr[0] in whitelist): # Not in whitelist
-      logging.info('"' + addr[0] + '" blocked (whitelist)') # Logging
+      logging.info('"' + addrStr + '" blocked (whitelist)') # Logging
       conn.close() # Close
       return # Exit
     
@@ -578,14 +599,25 @@ def clientThreadFunction(conn, addr):
   else: # Do blacklist
     
     if(addr[0] in blacklist): # In blacklist
-      logging.info('"' + addr[0] + '" blocked (blacklist)') # Logging
+      logging.info('"' + addrStr + '" blocked (blacklist)') # Logging
       conn.close() # Close
       return # Exit
     
   
-  # Pre-Loop
+  # PIN
   
-  addrStr = addr[0] + ':' + str(addr[1]) # Address as string
+  nonce = os.urandom(32) # Unpredictable random nonce
+  conn.sendall(nonce) # Send nonce
+  expected = hashlib.sha256(pin.encode() + nonce).hexdigest() # Passing value
+  response = conn.recv(2048).decode().strip() # Response value
+  
+  if response != expected: # Disconnect - Failed
+    conn.sendall('PIN Failed\n'.encode()) # Send reject message
+    logging.info('"' + addrStr + '" blocked (PIN)') # Logging
+    conn.close() # Close
+    return # Exit
+  
+  # Pre-Loop
   
   addClient((conn, addrStr)) # Add to clients array
   
