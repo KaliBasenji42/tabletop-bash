@@ -19,6 +19,7 @@ import hashlib
 import socket
 import threading
 import queue
+import json
 import logging
 
 logging.basicConfig(
@@ -29,6 +30,10 @@ logging.basicConfig(
 logging.debug('New Run')
 
 ### Variables ###
+
+# Files
+
+configPath = 'config.json' # Path to config file
 
 # Server
 
@@ -68,6 +73,20 @@ def hasNumerics(string): # Returns wether a string has numeric characters
     if char.isnumeric(): return True
   
   return False
+  
+
+# File
+
+def readConfig(): # Read config file
+  
+  # Read Files
+  
+  with open(configPath, 'r') as file: data = json.loads(file.read())
+  
+  # Set logging level
+  
+  try: logging.basicConfig.level = data['loggingLevel']
+  except: logging.exception('Could not set logging level in config')
   
 
 ### Classes ###
@@ -235,6 +254,20 @@ Enter "quit" to quit
 """
 
 print(title)
+
+# Read Files
+
+try:
+  
+  readConfig()
+  
+except Exception as e:
+  
+  logging.exception('File Read Error') # Logging
+  print('\033[97;41mFile Read Error\033[0m\n' + str(e))
+  
+  quit() # Exit
+  
 
 # Server
 

@@ -125,6 +125,11 @@ def readConfig(): # Read config file
   
   with open(configPath, 'r') as file: data = json.loads(file.read())
   
+  # Set logging level
+  
+  try: logging.basicConfig.level = data['loggingLevel']
+  except: logging.exception('Could not set logging level in config')
+  
   # Set variables
   
   host = data['IP']

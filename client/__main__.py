@@ -82,6 +82,7 @@ mode = 0 # 0 = Normal/Table, 1 = Inventory, 2 = Help
 
 helpText = [ # Help text array
   'wasd: Move/Navigate',
+  '[shift] (capitals): Move 5X faster (for table)',
   'e: Select',
   'x: Cancel',
   'q: Main Menu/Quit',
@@ -144,6 +145,11 @@ def readConfig(): # Read config file
   # Read Files
   
   with open(configPath, 'r') as file: data = json.loads(file.read())
+  
+  # Set logging level
+  
+  try: logging.basicConfig.level = data['loggingLevel']
+  except: logging.exception('Could not set logging level in config')
   
   # Set variables
   
@@ -999,6 +1005,11 @@ def main(stdscr):
     elif key == ord('w'): selected = (selected[0] - 1, selected[1])
     elif key == ord('d'): selected = (selected[0], selected[1] + 1)
     elif key == ord('a'): selected = (selected[0], selected[1] - 1)
+    
+    elif key == ord('S'): selected = (selected[0] + 5, selected[1])
+    elif key == ord('W'): selected = (selected[0] - 5, selected[1])
+    elif key == ord('D'): selected = (selected[0], selected[1] + 5)
+    elif key == ord('A'): selected = (selected[0], selected[1] - 5)
     
     # Other keys
     

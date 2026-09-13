@@ -1,4 +1,5 @@
 {
+  
   "IP and Port": "comment",
   "IP": "127.0.0.1",
   "port": 65432,
@@ -22,6 +23,9 @@
   ],
   
   "Enable PIN verification": "comment",
-  "enablePin": false
+  "enablePin": false,
+  
+  "Logging level for python's logging module (0-50)": "comment",
+  "loggingLevel": 10
   
 }

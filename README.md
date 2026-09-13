@@ -59,6 +59,7 @@ Note that GitHub breaks CSS, so colors may not be shown.
 Help Text:  
 <pre>
 wasd: Move/Navigate
+[shift] (capitals): Move 5X faster (for table)
 e: Select
 x: Cancel
 q: Main Menu/Quit
@@ -107,6 +108,7 @@ Config file `config.json` in host folder.
 
 ```JSON
 {
+  
   "IP and Port": "comment", // In file comments (JSONs don't allow comments)
   "IP": "127.0.0.1", // Host IP
   "port": 65432, // Host Port
@@ -130,7 +132,10 @@ Config file `config.json` in host folder.
   ],
   
   "Enable PIN verification": "comment",
-  "enablePin": false // Wether to prompt server for PIN (default is '')
+  "enablePin": false, // Wether to prompt server for PIN (default is '')
+  
+  "Logging level for python's logging module (0-50)": "comment",
+  "loggingLevel": 30 // Takes effect after config is read (default is WARNING)
   
 }
 ```
@@ -179,6 +184,7 @@ Config file `config.json` in client folder.
 
 ```JSON
 {
+  
   "Frames per second cap": "comment",
   "fps": 20,
   
@@ -205,7 +211,11 @@ Config file `config.json` in client folder.
   "Order to sort inventory by, unspecified will sort alphabetically at end": "comment",
   "sortOrder": [
     // Default is copied from the order in the item default json
-  ]
+  ],
+  
+  "Logging level for python's logging module (0-50)": "comment",
+  "loggingLevel": 30 // Takes effect after config is read (default is WARNING)
+  
 }
 ```
 
@@ -234,7 +244,7 @@ Config file `config.json` in client folder.
 
 ### Custom Renderings' Look
 
-> NOTE: GitHub breaks CSS, so colors will not show up if you are using GitHub.  
+> NOTE: GitHub breaks CSS, so colors will not show up if you are viewing through GitHub.  
 
 **Default:**  
 
@@ -362,7 +372,7 @@ The following describes how the host server behaves when receiving the respectiv
 Signifies that a client is disconnected.  
 
 Sends the following in chat:  
-\[*UN*\]: Left
+&#91;*UN*&#93;: Left
 
 > Sent internally  
 
@@ -372,7 +382,7 @@ Signifies that a client has joined.
 Updates `username` dictionary with the client's address as *UN*.  
 
 Sends the following in chat:  
-\[*UN*\]: Joined  
+&#91;*UN*&#93;: Joined  
 
 **"un:*UN*":**  
 
@@ -380,21 +390,21 @@ Signifies that a client has changed their username.
 Updates `username` dictionary with the client's address as *UN*.  
 
 Sends the following in chat:  
-\[*UN*\]: Changed UN
+&#91;*UN*&#93;: Changed UN
 
 **"msg:*message*":**  
 
 Signifies that a client has sent a chat message.  
 
 Sends the following in chat:  
-\[*UN*\]:<br>> *message*  
+&#91;*UN*&#93;:<br>> *message*  
 
 **"buzz:*message*":**  
 
 Signifies that a client has pressed their buzzer.  
 
 Sends the following in chat:  
-\[*UN*\]: *message*  
+&#91;*UN*&#93;: *message*  
 
 Note: The message is normally sent in format "\*Buzzer\* at *time*"  
 *time* being the client's time of day in format "*minutes*:*seconds*.*microsecond*"  
