@@ -73,6 +73,9 @@ run.set()
 chatLog = [] # Array of tuples of strings (user, message, type), containing the chat log
 chatLength = 20 # Max chat log length
 
+returnDisconnected = True # Wether to return disconnected inventories to Toy Box
+toyBox = {} # Dictionary for Toy Box contents
+
 tableState = {
   'objects': [], # 3D Array of objects {item: "name", flipped: bool} on the table
   'color': [] # 2D Array of the color of the table
@@ -121,6 +124,9 @@ def readConfig(): # Read config file
   
   global enablePin
   
+  global returnDisconnected
+  global toyBox
+  
   # Read Files
   
   with open(configPath, 'r') as file: data = json.loads(file.read())
@@ -142,6 +148,9 @@ def readConfig(): # Read config file
   
   enablePin = data['enablePin']
   
+  returnDisconnected = data['returnDisconnected']
+  toyBox = data['toyBox']
+  
   # Logging
   
   logging.debug('Whitelist Enabled: ' + str(enableWhitelist))
@@ -149,6 +158,8 @@ def readConfig(): # Read config file
   logging.debug('Blacklist: ' + str(blacklist))
   logging.debug('Managers: ' + str(managers))
   logging.debug('PIN Enabled: ' + str(enablePin))
+  
+  logging.debug('Return Disconnected: ' + str(returnDisconnected))
   
 
 def readItems(): # Read item file

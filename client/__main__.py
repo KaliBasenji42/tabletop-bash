@@ -597,7 +597,6 @@ mainMenu = menu(
     'Quit',
     'Inventory',
     'Toy Box',
-    'Disconnected Inventories',
     'Paint',
     'Paint Stamps'
   ],

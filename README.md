@@ -118,7 +118,7 @@ Config file `config.json` in host folder.
   
   "Whitelist, list IPs": "comment",
   "whitelist": [ // List of IPs to whitelist
-    "127.0.0.1"
+    "127.0.0.1" // Wildcards ("*") are allowed
   ],
   
   "Blacklist, list IPs": "comment",
@@ -133,6 +133,15 @@ Config file `config.json` in host folder.
   
   "Enable PIN verification": "comment",
   "enablePin": false, // Wether to prompt server for PIN (default is '')
+  
+  "Wether the contents of disconnected inventories return to Toy Box (discarded otherwise)": "comment",
+  "returnDisconnected": true, // Default is to add to Toy Box
+  
+  "Toy Box contents, -1 is infinite": "comment",
+  "toyBox": { // Each item's amount in Toy Box
+    "aceSpade": -1, // Default is each from item default json set to infinite
+    ...
+  },
   
   "Logging level for python's logging module (0-50)": "comment",
   "loggingLevel": 30 // Takes effect after config is read (default is WARNING)
@@ -210,7 +219,8 @@ Config file `config.json` in client folder.
   
   "Order to sort inventory by, unspecified will sort alphabetically at end": "comment",
   "sortOrder": [
-    // Default is copied from the order in the item default json
+    "aceSpade", // Default is copied from the order in the item default json
+    ...
   ],
   
   "Logging level for python's logging module (0-50)": "comment",
