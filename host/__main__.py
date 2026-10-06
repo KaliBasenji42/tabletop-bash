@@ -76,9 +76,10 @@ chatLength = 20 # Max chat log length
 returnDisconnected = True # Wether to return disconnected inventories to Toy Box
 toyBox = {} # Dictionary for Toy Box contents
 
+tableDimensions = [64, 32] # Dimensions of table
 tableState = {
   'objects': [], # 3D Array of objects {item: "name", flipped: bool} on the table
-  'color': [] # 2D Array of the color of the table
+  'color': [] # 2D Array of the color of the table, 4-bit color number
 }
 
 items = {} # Dictionary of default items
@@ -266,7 +267,7 @@ def broadcast(message): # Send message to all connections
         
         client[0].sendall((message + '\n').encode()) # Send
         
-        logging.info('Broadcast: ' + message) # Logging
+        logging.debug('Broadcast: ' + message) # Logging
         
       except Exception as e:
         
@@ -354,38 +355,36 @@ def generateChatLog(chatLog): # Generates string to send for chat log
 def generateTableLook(tableState): # Generates string to send for table look
   
   tableLook = {
-    objects: [], # 2D Array of objects faces on the table
-    color: [] # 2D Array of the color of the table
+    'objects': [], # 2D Array of objects (top) on the table
+    'color': [] # 2D Array of the color of the table
   } # Sent to client (such that hidden things stay hidden)
   
   # Set color (match exactly)
   
-  for row in tableState.color:
-    
-    for color in row:
-      
-      tableLook.color.append(color)
-      
-    
+  tableLook['color'] = tableState['color']
   
   # Set objects
   
-  for row in tableState.objects:
+  for row in tableState['objects']:
     
     for stack in row:
       
-      obj = {item: '', flipped: False} # Default item object
+      obj = {'item': '', 'flipped': False, 'stack': False} # Default item object
       
       if len(stack) > 0: obj = stack[0] # Set object to first in stack
       
-      item = obj.item # Item name to return
+      if len(stack) > 1: obj['stack'] = True # Set stack status
       
-      if(obj.flipped): # If flipped...
-        item = items[obj.item].flip # ...set to item's flip item
+      if(obj['flipped']): # If flipped...
+        obj['item'] = items[obj['item']]['flip'] # ...set to item's flip item
       
-      tableLook.objects.append(item) # Append
+      tableLook['objects'].append(obj) # Append
       
     
+  
+  # Return
+  
+  return json.dumps(tableLook)
   
 
 ### (Other) Threads ###
@@ -491,6 +490,8 @@ def serverQueueThreadFunction(): # Processes server queue messages
         
         broadcast('chat:' + generateChatLog(chatLog))
         
+        #if message[4:] == 'Err!': raise Exception('Test')
+        
       
       # Buzzer
       
@@ -500,11 +501,37 @@ def serverQueueThreadFunction(): # Processes server queue messages
         while len(chatLog) > chatLength: # While too long
           chatLog.pop(0) # Remove oldest
         
-        broadcast('chat:' + generateChatLog(chatLog))
+        broadcast('chat:' + generateChatLog(chatLog)) # Send to all clients
+        
+      
+      # Color/Paint
+      
+      elif message.startswith('color:'): # If color
+        
+        msgArr = message[6:].split(',') # Array of values from message
+        # color, y, x
+        colorVal = int(msgArr[0])
+        yPos = int(msgArr[1])
+        xPos = int(msgArr[2])
+        
+        if yPos < (tableDimensions[1] - 2) and xPos < (tableDimensions[0] - 2):
+          # Within range
+          
+          tableState['color'][yPos][xPos] = colorVal # Set [y][x] to color
+          
+          broadcast('tableLook:' + generateTableLook(tableState)) # Send to all clients
+          
         
       
     except queue.Empty:
+      
       continue # Continue if empty
+      
+    except Exception as e:# Other errors
+      
+      logging.exception('Server Queue Error') # Logging
+      print('\033[30;103mServer Queue Error\033[0m\n' + str(e))
+      
     
   
 
@@ -545,7 +572,8 @@ try:
 except Exception as e:
   
   logging.exception('File Read Error') # Logging
-  print('\033[97;41mFile Read Error\033[0m\n' + str(e))
+  
+  print('\033[97;41mFile Read Error\033[0m\n' + str(e)) # Error message
   
   quit() # Exit
   
@@ -579,20 +607,22 @@ except Exception as e:
 
 # Generate Table
 
-for i in range(32):
+for y in range(tableDimensions[1] - 2):
   
-  colorRow = []
+  colorRow = [] # Row Arrays
   objectRow = []
   
-  for j in range(64):
+  for x in range(tableDimensions[0] - 2):
     
-    colorRow.append('1')
+    colorRow.append(0) # Each column in row
     objectRow.append([])
     
   
-  tableState['color'].append(colorRow)
+  tableState['color'].append(colorRow) # Append rows
   tableState['objects'].append(objectRow)
   
+
+#logging.debug('Table State: ' + str(tableState)) # Logging
 
 ### Main Loop ###
 
@@ -648,6 +678,10 @@ def clientThreadFunction(conn, addr):
   
   conn.sendall(('defaultRender:' + json.dumps(defaultRender) + '\n').encode())
   # Send default rendering info
+  conn.sendall(('tableLook:' + generateTableLook(tableState) + '\n').encode())
+  # Table Look
+  #??? # Starting Inventory
+  #??? # Toy Box content
   
   # Main Loop
   

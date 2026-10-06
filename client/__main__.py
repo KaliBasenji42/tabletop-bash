@@ -90,6 +90,7 @@ helpText = [ # Help text array
   't: Chat (enter nothing to cancel)',
   'b: Buzzer',
   'u: Change username',
+  'p: paint',
   '',
   'Press "x" to exit'
 ]
@@ -101,7 +102,7 @@ tableLook = {
   'color': [] # 2D Array of the color of the table
 } # Sent from server, updated in thread
 
-inventoryState = [] # Array of objects in inventory
+inventoryState = [] # 3D Array of objects in inventory
 
 defaultRender = {} # Default rendering dictionary
 
@@ -153,7 +154,7 @@ def readConfig(): # Read config file
   
   # Set variables
   
-  spf = 1 / data["fps"]  
+  spf = 1 / data['fps']  
   enableCharWhitelist = data['enableCharWhitelist']
   charWhitelist = data['charWhitelist']
   baseChar = data['baseChar']
@@ -195,6 +196,7 @@ def processMessage(message): # Processes network messages and updates game state
   
   global chatLog
   global defaultRender
+  global tableLook
   
   # Chat
   
@@ -210,13 +212,15 @@ def processMessage(message): # Processes network messages and updates game state
     defaultRender = json.loads(message[14:]) # Load json
     
   
+  # Table Look
+  
+  elif message.startswith('tableLook:'): # If table look
+    
+    tableLook = json.loads(message[10:]) # Load json
+    
+  
 
 # output
-
-def renderTable(): # Takes tableState and redraws tableGrid for rendering
-  
-  pass
-  
 
 def addstr(stdscr, y, x, string, attr = 0):
   
@@ -236,7 +240,7 @@ def addstr(stdscr, y, x, string, attr = 0):
     
     for char in string: # Each character
       
-      if char in charWhitelist: # IF valid...
+      if char in charWhitelist: # If valid...
         outStr += char # ...add
       
       else: # Else...
@@ -412,8 +416,27 @@ def render(stdscr): # Render screen
   
   ### Table ###
   
-  stdscr.chgat(selected[0] + 1, selected[1] + 1, 1, curses.A_REVERSE)
+  # Color
+  
+  for y in range(len(tableLook['color'])):
+    
+    for x in range(len(tableLook['color'][y])):
+      
+      color = tableLook['color'][y][x]
+      
+      stdscr.chgat(
+        y + tableWindow.y + 1, x + tableWindow.x + 1, 
+        1, curses.color_pair(color + 17)
+      ) # Set BG color
+      
+    
+  
   # Highlight selected cell
+  
+  stdscr.chgat(
+    selected[0] + tableWindow.y + 1, selected[1] + tableWindow.x + 1, 
+    1, curses.A_REVERSE
+  )
   
   ### Refresh ###
   
@@ -561,7 +584,7 @@ class menu:
     return -1 # Base Case
     
   
-  def render(self, stdscr, msg=""): # Render on context
+  def render(self, stdscr, msg=''): # Render on context
     
     for i in range(min(len(self.options), contextWindow.height - 3)):
       # Each option, within contextWindow height
@@ -604,7 +627,6 @@ mainMenu = menu(
     'Quit game',
     'Scroll through inventory',
     'Add items to inventory',
-    'Grab inventories from disconnected clients',
     'Color part of the table',
     'Predefined stamps that paint a section of the table'
   ]
@@ -619,7 +641,7 @@ tableMenu = menu( # Menu for items on table
     'Grab Each',
     'Move Stack',
     'Shuffle',
-    'Roll',
+    'Roll'
   ],
   [
     'Place item from inventory. Places on top if stack',
@@ -629,7 +651,7 @@ tableMenu = menu( # Menu for items on table
     'Grab each card from stack (separately)',
     'Move entire stack',
     'Shuffle stack',
-    'Roll item',
+    'Roll item'
   ]
 )
 
@@ -646,7 +668,58 @@ inventoryMenu = menu( # Menu for items in inventory
   ]
 )
 
-menus = [mainMenu, tableMenu]
+paintMenu = menu( # Menu for painting
+  [
+    'Erase',
+    'Red',
+    'Green',
+    'Yellow',
+    'Blue',
+    'Magenta',
+    'Cyan',
+    'White',
+    'Bright Colors'
+  ],
+  [
+    'Paint black',
+    'Paint red',
+    'Paint green',
+    'Paint yellow',
+    'Paint blue',
+    'Paint magenta',
+    'Paint cyan',
+    'Paint white',
+    'Bright colors menu'
+  ]
+)
+
+paintMenuBright = menu( # Menu for painting bright colors
+  [
+    'Bright Black',
+    'Bright Red',
+    'Bright Green',
+    'Bright Yellow',
+    'Bright Blue',
+    'Bright Magenta',
+    'Bright Cyan',
+    'Bright White'
+  ],
+  [
+    'Paint bright black (grey)',
+    'Paint bright red',
+    'Paint bright green',
+    'Paint bright yellow',
+    'Paint bright blue',
+    'Paint bright magenta',
+    'Paint bright cyan',
+    'Paint bright white'
+  ]
+)
+
+menus = [
+  mainMenu, tableMenu, inventoryMenu, 
+  paintMenu, paintMenuBright
+] # List of all menus
 
 # Network
 
@@ -704,7 +777,7 @@ class server:
       self.disconnect = True # Disconnect
       self.run = False
       
-      logging.exception("Send Error")
+      logging.exception('Send Error')
       
     
   
@@ -747,7 +820,7 @@ class server:
         
         self.buffer += data.decode()
         
-        while "\n" in self.buffer: # While data not a complete message
+        while '\n' in self.buffer: # While data not a complete message
           
           message, self.buffer = self.buffer.split('\n', 1) # Split on message end
           
@@ -819,7 +892,7 @@ except Exception as e:
   
   logging.exception('File Read Error') # Logging
   
-  print('\033[97;41mCould Not Read File\033[0m') # Error message
+  print('\033[97;41mFile Read Error\033[0m\n' + str(e)) # Error message
   
   quit() # Quit
   
@@ -834,7 +907,11 @@ print()
 
 try:
   
+  print('Connecting...\n') # Loading message
+  
   clientServer = server(host, port, clientName) # Try making server
+  
+  print('Connected!\n') # Completion message
   
 except Exception as e:
   
@@ -861,8 +938,11 @@ def main(stdscr):
   
   # Colors
   
-  for i in range(16): # Base 4-bit colors (on black)
+  for i in range(16): # Base 4-bit colors - foreground
     curses.init_pair(i+1, i, -1)
+  
+  for i in range(16): # Base 4-bit colors - background
+    curses.init_pair(i+16+1, -1, i)
   
   # Global Variables
   
@@ -904,7 +984,10 @@ def main(stdscr):
       
       message = clientServer.queue.get() # Get message from queue
       
-      processMessage(message) # Process & update
+      try:
+        processMessage(message) # Process & update
+      except Exception as e:
+        logging.exception('Server Queue Error') # Logging
       
     
     ### Rendering ###
@@ -973,10 +1056,13 @@ def main(stdscr):
       selectedOption = mainMenu.key(key)
       
       if selectedOption > -1:
-        logging.debug('Main Menu Option: ' + str(selectedOption))
+        logging.debug('Main Menu Option: ' + str(selectedOption)) # Logging
       
       if selectedOption == 0: # Quit
         run = False
+      
+      elif selectedOption == 3: # Paint
+        paintMenu.active = True
       
     
     elif tableMenu.active:
@@ -984,7 +1070,42 @@ def main(stdscr):
       selectedOption = tableMenu.key(key)
       
       if selectedOption > -1:
-        logging.debug('Table Menu Option: ' + str(selectedOption))
+        logging.debug('Table Menu Option: ' + str(selectedOption)) # Logging
+      
+    
+    elif paintMenu.active:
+      
+      selectedOption = paintMenu.key(key)
+      
+      if selectedOption == 8:
+        paintMenuBright.active = True # Open Bright Paint Menu
+      
+      elif selectedOption > -1:
+        
+        clientServer.send( # Send
+          'color:' + str(selectedOption) + # Color
+          ',' + str(selected[0]) + # y
+          ',' + str(selected[1]) # x
+        )
+        
+        logging.debug('Paint Menu Option: ' + str(selectedOption)) # Logging
+        
+      
+    
+    elif paintMenuBright.active:
+      
+      selectedOption = paintMenuBright.key(key)
+      
+      if selectedOption > -1:
+        
+        clientServer.send( # Send
+          'color:' + str(selectedOption + 8) + # Color
+          ',' + str(selected[0]) + # y
+          ',' + str(selected[1]) # x
+        )
+        
+        logging.debug('Paint Menu Option: ' + str(selectedOption)) # Logging
+        
       
     
     # Quit
@@ -994,7 +1115,7 @@ def main(stdscr):
       if termTooSmall: # If too small
         run = False
       
-      else: # Otherwise
+      elif mode == 0: # Otherwise
         mainMenu.active = True # Activate main menu
       
     
@@ -1012,7 +1133,7 @@ def main(stdscr):
     
     # Other keys
     
-    elif key == ord('e') and not termTooSmall: # Select space
+    elif key == ord('e') and not termTooSmall and mode == 0: # Select space
       
       tableMenu.active = True
       
@@ -1057,14 +1178,20 @@ def main(stdscr):
       
       timeNow = datetime.datetime.now() # Current time down to ms
       
+      mStr = str(timeNow.minute) # Minute string
+      while len(mStr) < 2: # While too short
+        mStr = '0' + mStr # Add '0'
+      
+      sStr = str(timeNow.second) # Minute string
+      while len(sStr) < 2: # While too short
+        sStr = '0' + sStr # Add '0'
+      
       msStr = str(timeNow.microsecond) # Micro second string
       while len(msStr) < 6: # While too short
         msStr = '0' + msStr # Add '0'
       
       timeStr = ( # String to send
-        str(timeNow.minute) + ':' +
-        str(timeNow.second) + '.' +
-        msStr
+        mStr + ':' + sStr + '.' + msStr
       )
       
       clientServer.send('buzz:*Buzzer* at ' + timeStr) # Send
@@ -1072,7 +1199,7 @@ def main(stdscr):
       logging.debug('Buzzer at ' + str(timeNow)) # Logging
       
     
-    elif key == ord('u') and not termTooSmall: # Username
+    elif key == ord('u') and not termTooSmall and mode == 0: # Username
       
       curses.echo() # Allow echo
       stdscr.nodelay(False) # Block until input
@@ -1108,6 +1235,11 @@ def main(stdscr):
       stdscr.nodelay(True) # Reset to non-blocking
       
     
+    elif key == ord('p') and not termTooSmall and mode == 0: # Paint
+      
+      paintMenu.active = True
+      
+    
     # Clamp Movements
     
     if key != -1: # If there was a keypress
@@ -1138,7 +1270,7 @@ except Exception as e:
   logging.exception('Fatal Error') # Log
   
   # Error message
-  print('\033[97;41mFatal Error\033[0m')
+  print('\033[97;41mFatal Error\033[0m\n' + str(e))
   
 
 ### Post-Loop ###

@@ -1,7 +1,7 @@
 <style>
   img {max-height: 32rem;}
   body {background-color: rgb(32, 32, 32); color: rgb(240, 240, 240);}
-  pre {white-space: pre; overflow-x: scroll; line-height: 1.2em}
+  pre {white-space: pre; overflow-x: scroll; line-height: 1.2em;}
 </style>
 
 # General
@@ -27,7 +27,8 @@ Note that GitHub breaks CSS, so colors may not be shown.
 - [Client UI](#client-ui)
 - [File Structure](#file-structure)
 - [Data Files](#data-files)
-- [Network](#network)
+- [Server](#server)
+- [Error Messages](#error-messages)
 
 # Getting Started
 
@@ -67,6 +68,7 @@ h: Help
 t: Chat (enter nothing to cancel)
 b: Buzzer
 u: Change username
+p: paint
 
 Press "x" to exit
 </pre>
@@ -254,7 +256,7 @@ Config file `config.json` in client folder.
 
 ### Custom Renderings' Look
 
-> NOTE: GitHub breaks CSS, so colors will not show up if you are viewing through GitHub.  
+> Note: GitHub breaks CSS, so colors will not show up if you are viewing through GitHub.  
 
 **Default:**  
 
@@ -371,11 +373,11 @@ Stones:
 <span style="color: rgb(0,240,240)  ">@</span>
 <span style="color: rgb(240,240,240)">@</span>  
 
-# Network
+# Server
+
+The following describes how the receptive programs' server behaves when receiving the respective strings.   
 
 ## Host
-
-The following describes how the host server behaves when receiving the respective strings.   
 
 **"disconnect":**  
 
@@ -433,6 +435,10 @@ Disconnect connection with the matching *addr*.
 
 > Used by Manager  
 
+**"color:*color*,*y*,*x*":**  
+
+Sets color of table at location. Splits string into *color*, *y*, and *x*, then converts to integers. *color* is based on [Color Key](#color-key). If *y* or *x* is out of range, message is silently ignored.  
+
 ## Client
 
 **"chat:*data*":**  
@@ -468,3 +474,80 @@ Sets `defaultRender` to *data*.
 *[Color Key](#color-key)  
 
 Host server sends this to each client as they join.  
+
+# Error Messages
+
+> Note: GitHub breaks CSS, so colors will not show up if you are viewing through GitHub.  
+
+**Message:**  
+
+<span style="color: rgb(240, 240, 240); background-color: rgb(240, 0, 0);">File Read Error</span>  
+*Error*  
+
+**Description:**  
+
+The program was unable to read a file storing required data for startup. Usually a config file. Most likely caused by a file named incorrectly. The *error* is printed.  
+
+## Client
+
+**Message:**  
+
+<span style="color: rgb(240, 240, 240); background-color: rgb(240, 0, 0);">Connection Error</span>  
+*Error*  
+
+**Description:**  
+
+The program was unable to connect to the server. Most likely caused by an incorrect address. Ensure the correct address is configured in the server config (use `ip addr` or similar to check local/home network address), and that the address the client inputs matches this. The *error* is printed.  
+
+**Message:**  
+
+<span style="color: rgb(240, 240, 240); background-color: rgb(240, 0, 0);">Fatal Error</span>  
+*Error*  
+
+**Description:**  
+
+An unresolvable error in the main loop occurred. Probably a programming error (please report, if so). The *error* is printed.  
+
+**Message:**  
+
+<span style="color: rgb(240, 240, 240); background-color: rgb(240, 0, 0);">Disconnected From Server</span>  
+
+**Description:**  
+
+Client is no longer able to connect to server. Most likely caused by a kick or server shutdown.  
+
+**Message:**  
+
+<span style="color: rgb(0, 0, 0); background-color: rgb(240, 240, 0);">PIN Failed</span>  
+
+**Description:**  
+
+Hashed PINs did not match. Incorrect PIN was likely inputted (note that servers with PIN disabled use a blank PIN, so one should only press enter).  
+
+**Message:**  
+
+<span style="color: rgb(240, 0, 0); background-color: rgb(0, 0, 0);">Rendering Error</span>  
+
+**Description:**  
+
+An unresolvable error in the main rendering function occurred. Probably a programming error (please report, if so). Exit by pressing 'q' then 'e' or '1' (or [ctrl + c]).  
+
+## Server
+
+**Message:**  
+
+<span style="color: rgb(240, 240, 240); background-color: rgb(240, 0, 0);">Socket Bind Error</span>  
+*Error*
+
+**Description:**  
+
+The server is unable to use the configured address. Likely due to the configured port currently being in use, or your system thinking it is currently in use. Try again in a few moments, or configure a different port. The *error* is printed.  
+
+**Message:**  
+
+<span style="color: rgb(0, 0, 0); background-color: rgb(240, 240, 0);">Server Queue Error</span>  
+*Error*  
+
+**Description:**  
+
+The server was unable to process a message (messages are stored in a queue, hence the name). Most likely a message formatted incorrectly, or a programming error being handled non-fatally. The *error* is printed.  
