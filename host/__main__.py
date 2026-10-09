@@ -508,19 +508,26 @@ def serverQueueThreadFunction(): # Processes server queue messages
       
       elif message.startswith('color:'): # If color
         
-        msgArr = message[6:].split(',') # Array of values from message
-        # color, y, x
-        colorVal = int(msgArr[0])
-        yPos = int(msgArr[1])
-        xPos = int(msgArr[2])
+        msgArrs = json.loads(message[6:]) # Array of values from message
+        # [[color, y, x], ...]
         
-        if yPos < (tableDimensions[1] - 2) and xPos < (tableDimensions[0] - 2):
-          # Within range
+        for msgArr in msgArrs:
           
-          tableState['color'][yPos][xPos] = colorVal # Set [y][x] to color
+          colorVal = int(msgArr[0])
+          yPos = int(msgArr[1])
+          xPos = int(msgArr[2])
           
-          broadcast('tableLook:' + generateTableLook(tableState)) # Send to all clients
+          if (
+            yPos < (tableDimensions[1] - 2) and xPos < (tableDimensions[0] - 2)
+            and yPos >= 0 and xPos >= 0
+          ):
+            # Within range
+            
+            tableState['color'][yPos][xPos] = colorVal # Set [y][x] to color
+            
           
+        
+        broadcast('tableLook:' + generateTableLook(tableState)) # Send to all clients
         
       
     except queue.Empty:
@@ -614,7 +621,7 @@ for y in range(tableDimensions[1] - 2):
   
   for x in range(tableDimensions[0] - 2):
     
-    colorRow.append(0) # Each column in row
+    colorRow.append(1) # Each column in row
     objectRow.append([])
     
   

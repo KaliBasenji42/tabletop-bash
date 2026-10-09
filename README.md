@@ -11,7 +11,7 @@ It uses Curses for terminal rendering and Socket (TCP) for networking.
 
 Binary files are packaged for Linux systems after 2014 and using an x86_64 architecture. Although one can always run the python script itself (`__main__.py`) rather than the binary (`__main__`). Python version 3.12.11 and newer should work.  
 
-Since this software uses Curses, it will problem not work on Window devices. Although I am sure there are forks of Curses that work on Windows. Feel free to edit the code, thats what the GPL v2 License is for :3 (I don't use Windows and don't plan to make it compatible myself).  
+Since this software uses Curses, it will problem not work on Window devices. Although I am sure there are forks of Curses that work on Windows. Feel free to edit the code, thats what the GPL v2 License is for :3 (I don't use Windows and don't plan to make it compatible myself). And you should be able to use WSL to use linux on Windows.  
 
 > **IMPORTANT:**  
 > Do not share your IP address with people you do not trust.  
@@ -31,6 +31,13 @@ Note that GitHub breaks CSS, so colors may not be shown.
 - [Error Messages](#error-messages)
 
 # Getting Started
+
+## Recommended Requirements
+
+- GNU Linux Operating System
+- Terminal (emulator) with 4-bit color support (highly recommended)
+- Terminal (emulator) that can display special characters (optional, see custom rendering)
+- Python 3.12.11 or later (optional)
 
 ## Host
 
@@ -197,7 +204,7 @@ Config file `config.json` in client folder.
 {
   
   "Frames per second cap": "comment",
-  "fps": 20,
+  "fps": 30, // Should be greater than key-repeat rate
   
   "List of file paths for Custom Rendering": "comment",
   "customRendering": [
@@ -225,11 +232,24 @@ Config file `config.json` in client folder.
     ...
   ],
   
+  "List of stamp data": "comment",
+  "stamps": [
+    {
+      "option": "Chess Board", // Option name for stamp menu
+      "details": "8x8, dark, topleft on selected", // Option details for stamp menu
+      "color": [ // Color data that is sent to host*
+        [9,0,0],... // Relative to selected position**
+      ]
+    }
+  ],
+  
   "Logging level for python's logging module (0-50)": "comment",
   "loggingLevel": 30 // Takes effect after config is read (default is WARNING)
   
 }
 ```
+\*See [Server](#server): "color:*data*"  
+\*\*The current selected position is added to the coordinate values to make it relative to the selected position (allowing the client to easily set the position).  
 
 <span id="color-key"></span>
 
@@ -435,9 +455,22 @@ Disconnect connection with the matching *addr*.
 
 > Used by Manager  
 
-**"color:*color*,*y*,*x*":**  
+**"color:*data*":**  
 
-Sets color of table at location. Splits string into *color*, *y*, and *x*, then converts to integers. *color* is based on [Color Key](#color-key). If *y* or *x* is out of range, message is silently ignored.  
+Sets color of table at location, updates `tableLook` based on *data*.  
+*data* is stringified JSON data in form:  
+```JSON
+[
+  [
+    0, // Color*
+    0, // Y Position
+    0, // X Position
+  ],
+  ...
+]
+```
+
+*[Color Key](#color-key)  
 
 ## Client
 
@@ -475,6 +508,25 @@ Sets `defaultRender` to *data*.
 
 Host server sends this to each client as they join.  
 
+**"tableLook:*data*":**  
+
+Updated chat log, sets `tableLook` to *data*.  
+*data* is stringified JSON data in form:  
+```JSON
+{
+  "objects": [
+    [{"item": "", "flipped": false, "stack": false},...],
+    ...
+  ], // 2D Array of objects faces on the table
+  "color": [
+    [0,0,0,...],
+    ...
+  ] // 2D Array of the color of the table*
+}
+```
+
+*[Color Key](#color-key)  
+
 # Error Messages
 
 > Note: GitHub breaks CSS, so colors will not show up if you are viewing through GitHub.  
@@ -487,6 +539,26 @@ Host server sends this to each client as they join.
 **Description:**  
 
 The program was unable to read a file storing required data for startup. Usually a config file. Most likely caused by a file named incorrectly. The *error* is printed.  
+
+## Host
+
+**Message:**  
+
+<span style="color: rgb(240, 240, 240); background-color: rgb(240, 0, 0);">Socket Bind Error</span>  
+*Error*
+
+**Description:**  
+
+The server is unable to use the configured address. Likely due to the configured port currently being in use, or your system thinking it is currently in use. Try again in a few moments, or configure a different port. The *error* is printed.  
+
+**Message:**  
+
+<span style="color: rgb(0, 0, 0); background-color: rgb(240, 240, 0);">Server Queue Error</span>  
+*Error*  
+
+**Description:**  
+
+The server was unable to process a message (messages are stored in a queue, hence the name). Most likely a message formatted incorrectly, or a programming error being handled non-fatally. The *error* is printed.  
 
 ## Client
 
@@ -531,23 +603,3 @@ Hashed PINs did not match. Incorrect PIN was likely inputted (note that servers 
 **Description:**  
 
 An unresolvable error in the main rendering function occurred. Probably a programming error (please report, if so). Exit by pressing 'q' then 'e' or '1' (or [ctrl + c]).  
-
-## Server
-
-**Message:**  
-
-<span style="color: rgb(240, 240, 240); background-color: rgb(240, 0, 0);">Socket Bind Error</span>  
-*Error*
-
-**Description:**  
-
-The server is unable to use the configured address. Likely due to the configured port currently being in use, or your system thinking it is currently in use. Try again in a few moments, or configure a different port. The *error* is printed.  
-
-**Message:**  
-
-<span style="color: rgb(0, 0, 0); background-color: rgb(240, 240, 0);">Server Queue Error</span>  
-*Error*  
-
-**Description:**  
-
-The server was unable to process a message (messages are stored in a queue, hence the name). Most likely a message formatted incorrectly, or a programming error being handled non-fatally. The *error* is printed.  

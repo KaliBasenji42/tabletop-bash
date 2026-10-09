@@ -41,6 +41,9 @@ configPath = 'config.json' # Path to config file
 
 customRendering = {} # Custom rendering dictionary
 
+stampData = [] # Stamp color information from config
+stampMenu = None # Menu for stamps
+
 # Server
 
 networkTimeout = 1 # Network Timeout time in seconds
@@ -143,6 +146,10 @@ def readConfig(): # Read config file
   global charWhitelist
   global baseChar
   
+  global stampData
+  global stampMenu
+  global menus
+  
   # Read Files
   
   with open(configPath, 'r') as file: data = json.loads(file.read())
@@ -186,6 +193,36 @@ def readConfig(): # Read config file
     
   
   logging.debug('Custom Rendering:\n' + str(customRendering))
+  
+  # Stamps
+  
+  stampOptions = [] # List of stamp options for menu
+  stampDetails = [] # List of stamp details for menu
+  
+  for stamp in data['stamps']:
+    
+    try: # Try to set data
+      
+      stamp['option'] # Call all needed,
+      stamp['details'] # to invoke error before adding,
+      stamp['color'] # if there is an error
+      
+      stampOptions.append(stamp['option'])
+      stampDetails.append(stamp['details'])
+      stampData.append(stamp['color'])
+      
+    except: # Error
+      
+      stampOptions.append('ERROR!')
+      stampDetails.append('Failed to load stamp from config')
+      stampData.append([])
+      
+      logging.exception('Failed to Load Stamp from Config')
+      
+    
+  
+  stampMenu = menu(stampOptions, stampDetails)
+  menus.append(stampMenu)
   
 
 # Network
@@ -426,7 +463,7 @@ def render(stdscr): # Render screen
       
       stdscr.chgat(
         y + tableWindow.y + 1, x + tableWindow.x + 1, 
-        1, curses.color_pair(color + 17)
+        1, curses.color_pair(color + 16)
       ) # Set BG color
       
     
@@ -553,6 +590,8 @@ class menu:
     try: keyNum = strToPosInt(chr(key)) # Try to convert
     except: pass # Otherwise, base case of 0
     
+    if key == ord('0'): keyNum = 10 # 0 is 10
+    
     if keyNum > 0 and keyNum <= len(self.options): # Within option range
       self.active = False # Close
       self.pos = 0 # Reset Pos
@@ -589,7 +628,11 @@ class menu:
     for i in range(min(len(self.options), contextWindow.height - 3)):
       # Each option, within contextWindow height
       
-      option = (str(i+1) + '. ' + self.options[i])[:contextWindow.width - 2]
+      scroll = 0 # Scroll amount
+      if self.pos + 1 >= contextWindow.height - 3: # If out of range...
+        scroll = self.pos - (contextWindow.height - 3) + 1
+      
+      option = (str(i+1+scroll) + '. ' + self.options[i+scroll])[:contextWindow.width - 2]
       # Option string
       
       addstr( # Render
@@ -598,18 +641,19 @@ class menu:
         option
       )
       
-      if i == self.pos: # If selected
+      if i == self.pos - scroll: # If selected
         
         stdscr.chgat( # Highlight
           contextWindow.y + 1 + i, contextWindow.x + 1,
           len(option), curses.A_REVERSE
         )
         
-        addstr( # Description
+        try: addstr( # Description
           stdscr,
           contextWindow.y + contextWindow.height - 2, contextWindow.x + 1,
-          self.optionDetails[i][:contextWindow.width - 2]
+          self.optionDetails[i+scroll][:contextWindow.width - 2]
         )
+        except: pass # Do nothing if error
         
       
     
@@ -678,7 +722,8 @@ paintMenu = menu( # Menu for painting
     'Magenta',
     'Cyan',
     'White',
-    'Bright Colors'
+    'Bright Colors',
+    'Stamps',
   ],
   [
     'Paint black',
@@ -689,7 +734,8 @@ paintMenu = menu( # Menu for painting
     'Paint magenta',
     'Paint cyan',
     'Paint white',
-    'Bright colors menu'
+    'Open Bright Colors menu',
+    'Open Stamp menu'
   ]
 )
 
@@ -720,6 +766,7 @@ menus = [
   mainMenu, tableMenu, inventoryMenu, 
   paintMenu, paintMenuBright
 ] # List of all menus
+# Stamp menu added in readConfig
 
 # Network
 
@@ -942,7 +989,7 @@ def main(stdscr):
     curses.init_pair(i+1, i, -1)
   
   for i in range(16): # Base 4-bit colors - background
-    curses.init_pair(i+16+1, -1, i)
+    curses.init_pair(i+1+16, -1, i)
   
   # Global Variables
   
@@ -1064,6 +1111,9 @@ def main(stdscr):
       elif selectedOption == 3: # Paint
         paintMenu.active = True
       
+      elif selectedOption == 4: # Stamps
+        stampMenu.active = True
+      
     
     elif tableMenu.active:
       
@@ -1080,12 +1130,17 @@ def main(stdscr):
       if selectedOption == 8:
         paintMenuBright.active = True # Open Bright Paint Menu
       
+      elif selectedOption == 9:
+        stampMenu.active = True # Open Stamp Menu
+      
       elif selectedOption > -1:
         
         clientServer.send( # Send
-          'color:' + str(selectedOption) + # Color
-          ',' + str(selected[0]) + # y
-          ',' + str(selected[1]) # x
+          'color:' + json.dumps([[
+            selectedOption + 1, # Color
+            selected[0], # y
+            selected[1], # x
+          ]])
         )
         
         logging.debug('Paint Menu Option: ' + str(selectedOption)) # Logging
@@ -1099,12 +1154,44 @@ def main(stdscr):
       if selectedOption > -1:
         
         clientServer.send( # Send
-          'color:' + str(selectedOption + 8) + # Color
-          ',' + str(selected[0]) + # y
-          ',' + str(selected[1]) # x
+          'color:' + json.dumps([[
+            selectedOption + 1 + 8, # Color
+            selected[0], # y
+            selected[1], # x
+          ]])
         )
         
-        logging.debug('Paint Menu Option: ' + str(selectedOption)) # Logging
+        logging.debug('Paint Menu Bright Option: ' + str(selectedOption)) # Logging
+        
+      
+    
+    elif stampMenu.active:
+      
+      selectedOption = stampMenu.key(key)
+      
+      if selectedOption > -1:
+        
+        try:
+            
+          data = stampData[selectedOption] # Un-relative data
+          newData = [] # Data to send
+          
+          for arr in data: # Adjust to selected position
+            newData.append([
+              arr[0], # Color
+              arr[1] + selected[0], # y
+              arr[2] + selected[1] # x 
+            ])
+            
+          
+          clientServer.send( # Send
+            'color:' + json.dumps(newData)
+          )
+        
+        except:
+          logging.exception('Failed to Generate Stamp')
+          
+        logging.debug('Stamp Menu Option: ' + str(selectedOption)) # Logging
         
       
     
