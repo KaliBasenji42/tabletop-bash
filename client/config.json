@@ -7,7 +7,25 @@
   "customRendering": [
   ],
   
-  "!!! Add input key config": "comment",
+  "Key input mapping": "comment",
+  "keyMap": {
+    "up": "w",
+    "down": "s",
+    "left": "a",
+    "right": "d",
+    "upFast": "W",
+    "downFast": "S",
+    "leftFast": "A",
+    "rightFast": "D",
+    "select": "e",
+    "cancel": "x",
+    "quit": "q",
+    "help": "h",
+    "chat": "t",
+    "buzzer": "b",
+    "changeUN": "u",
+    "paint": "p"
+  },
   
   "Wether to enable character whitelist": "comment",
   "enableCharWhitelist": false,

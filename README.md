@@ -34,7 +34,7 @@ Note that GitHub breaks CSS, so colors may not be shown.
 
 ## Recommended Requirements
 
-- GNU Linux Operating System
+- GNU Linux Operating System (or WSL)
 - Terminal (emulator) with 4-bit color support (highly recommended)
 - Terminal (emulator) that can display special characters (optional, see custom rendering)
 - Python 3.12.11 or later (optional)
@@ -62,9 +62,11 @@ Note that GitHub breaks CSS, so colors may not be shown.
     - This can by **any** string (including someone else's), you can press 'u' to change it at any point in the game
 6. Press 'q' then 'e' or '1' to quit
 
+> Default keys used, keys can be configured.  
+
 # Client UI
 
-Help Text:  
+Default Help Text:  
 <pre>
 wasd: Move/Navigate
 [shift] (capitals): Move 5X faster (for table)
@@ -208,10 +210,19 @@ Config file `config.json` in client folder.
   
   "List of file paths for Custom Rendering": "comment",
   "customRendering": [
+    "rendering/non-special.json",
+    ...
     // List of file paths
     // Relative to `__main__.py` (Remember to add `rendering/`)
     // Processes in order listed, last file is dominant
+    // More information listed below
   ],
+  
+  "Key input mapping": "comment", // Custom key input mapping
+  "keyMap": {
+    "up": "w", // Set to any character, conflict warnings will appear in app.log
+    ... // Do not change key names, only values
+  },
   
   "Wether to enable character whitelist": "comment",
   "enableCharWhitelist": false,

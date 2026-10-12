@@ -83,9 +83,12 @@ termTooSmall = True # Wether the terminal is too small
 
 mode = 0 # 0 = Normal/Table, 1 = Inventory, 2 = Help
 
-helpText = [ # Help text array
+keyMap = {} # Key input mapping
+
+helpText = [ # Default help text array
+  'Default: There was an error if you see this',
   'wasd: Move/Navigate',
-  '[shift] (capitals): Move 5X faster (for table)',
+  'WASD: Move 5X faster (for table)',
   'e: Select',
   'x: Cancel',
   'q: Main Menu/Quit',
@@ -95,9 +98,8 @@ helpText = [ # Help text array
   'u: Change username',
   'p: paint',
   '',
-  'Press "x" to exit'
+  'Press Cancel key to exit'
 ]
-
 # Game
 
 tableLook = {
@@ -146,6 +148,9 @@ def readConfig(): # Read config file
   global charWhitelist
   global baseChar
   
+  global keyMap
+  global helpText
+  
   global stampData
   global stampMenu
   global menus
@@ -165,6 +170,7 @@ def readConfig(): # Read config file
   enableCharWhitelist = data['enableCharWhitelist']
   charWhitelist = data['charWhitelist']
   baseChar = data['baseChar']
+  keyMap = data['keyMap']
   
   # Custom Rendering
   
@@ -193,6 +199,48 @@ def readConfig(): # Read config file
     
   
   logging.debug('Custom Rendering:\n' + str(customRendering))
+  
+  # Key Map
+  
+  flipped = {} # Flipped dictionary
+  
+  for key, value in keyMap.items():
+    
+    # Length error
+    
+    if len(value) != 1:
+      logging.warning('Key Map: "' + key + '": "' + value + '" is not a single character')
+    
+    # Numeric conflict
+    
+    if value.isnumeric():
+      logging.warning('Key Map: "' + key + '": "' + value + '" is numeric, and may conflict with menu selection')
+    
+    # Flipped mapping
+    
+    if value not in flipped:
+      flipped[value] = [key]
+    else:
+      flipped[value].append(key)
+      logging.warning('Key Map: ' + str(flipped[value]) + ' are all set to "' + value + '"')
+    
+  
+  helpText = [ # Generate help text array
+    keyMap['up'] + keyMap['left'] + keyMap['down'] + keyMap['right'] + 
+    ': Move/Navigate',
+    keyMap['upFast'] + keyMap['leftFast'] + keyMap['downFast'] + keyMap['rightFast'] + 
+    ': Move 5X faster (for table)',
+    keyMap['select'] + ': Select',
+    keyMap['cancel'] + ': Cancel',
+    keyMap['quit'] + ': Main Menu/Quit',
+    keyMap['help'] + ': Help',
+    keyMap['chat'] + ': Chat (enter nothing to cancel)',
+    keyMap['buzzer'] + ': Buzzer',
+    keyMap['changeUN'] + ': Change username',
+    keyMap['paint'] + ': paint',
+    '',
+    'Press "' + keyMap['cancel'] + '" to exit'
+  ]
   
   # Stamps
   
@@ -257,7 +305,25 @@ def processMessage(message): # Processes network messages and updates game state
     
   
 
-# output
+# Input
+
+def compareKey(key, target): 
+  # Compares key number to target input key/value
+  
+  try:
+    
+    return key == ord(keyMap[target][0])
+    
+  except:
+    
+    if key != -1: # Key was pressed
+      logging.exception('Could not Compare for Target: ' + str(target)) # Log error
+    
+  
+  return False # Base
+  
+
+# Output
 
 def addstr(stdscr, y, x, string, attr = 0):
   
@@ -281,7 +347,7 @@ def addstr(stdscr, y, x, string, attr = 0):
         outStr += char # ...add
       
       else: # Else...
-        outStr += '?' # ...add baseChar
+        outStr += baseChar # ...add baseChar
       
     
   
@@ -599,22 +665,22 @@ class menu:
     
     # Selection
     
-    elif key == ord('e'): # Select
+    elif compareKey(key, 'select'): # Select
       self.active = False # Close
       out = self.pos # Temp value to return
       self.pos = 0 # Reset Pos
       return out # Return selected
     
-    elif key == ord('x'): # Cancel
+    elif compareKey(key, 'cancel'): # Cancel
       self.pos = 0 # Reset Pos
       self.active = False # Close
     
     
     # Movement
     
-    elif key == ord('w'): # Up
+    elif compareKey(key, 'up'): # Up
       self.pos += -1
-    elif key == ord('s'): # Down
+    elif compareKey(key, 'down'): # Down
       self.pos += 1
     
     self.pos = max(0, self.pos) # Clamp >= 0
@@ -813,7 +879,7 @@ class server:
   
   def send(self, message): # Send to server
     
-    logging.debug('Sending: ' + message) # Logging
+    logging.debug('Sending:\n' + message) # Logging
     
     try:
       
@@ -873,7 +939,7 @@ class server:
           
           self.queue.put(message) # Push to queue
           
-          logging.debug('Message from server: ' + message) # Logging
+          logging.debug('Message from server:\n' + message) # Logging
           logging.debug('Queue Size: ' + str(self.queue.qsize())) # Logging
           
         
@@ -924,7 +990,7 @@ License: ../LICENSE.md
 GPL v2: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 KaliBasenji42's Github: https://github.com/KaliBasenji42
 
-NOTE: Press 'h' for help menu once connected
+NOTE: Press 'h' (or configured) for help menu once connected
 """
 
 print(title)
@@ -1197,7 +1263,7 @@ def main(stdscr):
     
     # Quit
     
-    elif key == ord('q'):
+    elif compareKey(key, 'quit'):
       
       if termTooSmall: # If too small
         run = False
@@ -1208,35 +1274,35 @@ def main(stdscr):
     
     # Movements
     
-    elif key == ord('s'): selected = (selected[0] + 1, selected[1])
-    elif key == ord('w'): selected = (selected[0] - 1, selected[1])
-    elif key == ord('d'): selected = (selected[0], selected[1] + 1)
-    elif key == ord('a'): selected = (selected[0], selected[1] - 1)
+    elif compareKey(key, 'down') : selected = (selected[0] + 1, selected[1])
+    elif compareKey(key, 'up')   : selected = (selected[0] - 1, selected[1])
+    elif compareKey(key, 'right'): selected = (selected[0], selected[1] + 1)
+    elif compareKey(key, 'left') : selected = (selected[0], selected[1] - 1)
     
-    elif key == ord('S'): selected = (selected[0] + 5, selected[1])
-    elif key == ord('W'): selected = (selected[0] - 5, selected[1])
-    elif key == ord('D'): selected = (selected[0], selected[1] + 5)
-    elif key == ord('A'): selected = (selected[0], selected[1] - 5)
+    elif compareKey(key, 'downFast') : selected = (selected[0] + 5, selected[1])
+    elif compareKey(key, 'upFast')   : selected = (selected[0] - 5, selected[1])
+    elif compareKey(key, 'rightFast'): selected = (selected[0], selected[1] + 5)
+    elif compareKey(key, 'leftFast') : selected = (selected[0], selected[1] - 5)
     
     # Other keys
     
-    elif key == ord('e') and not termTooSmall and mode == 0: # Select space
+    elif compareKey(key, 'select') and not termTooSmall and mode == 0: # Select space
       
       tableMenu.active = True
       
     
-    elif key == ord('x') and not termTooSmall: # Cancel / Exit below/misc
+    elif compareKey(key, 'cancel') and not termTooSmall: # Cancel / Exit below/misc
       
       if mode == 2: # If help mode
         mode = 0 # Exit
       
     
-    elif key == ord('h') and not termTooSmall: # Help
+    elif compareKey(key, 'help') and not termTooSmall: # Help
       
       mode = 2 # Set mode to help
       
     
-    elif key == ord('t') and not termTooSmall: # Chat
+    elif compareKey(key, 'chat') and not termTooSmall: # Chat
       
       curses.echo() # Allow echo
       stdscr.nodelay(False) # Block until input
@@ -1259,7 +1325,7 @@ def main(stdscr):
       stdscr.nodelay(True) # Reset to non-blocking
       
     
-    elif key == ord('b') and not termTooSmall: # Buzzer
+    elif compareKey(key, 'buzzer') and not termTooSmall: # Buzzer
       
       curses.beep() # Beep
       
@@ -1286,7 +1352,7 @@ def main(stdscr):
       logging.debug('Buzzer at ' + str(timeNow)) # Logging
       
     
-    elif key == ord('u') and not termTooSmall and mode == 0: # Username
+    elif compareKey(key, 'changeUN') and not termTooSmall and mode == 0: # Username
       
       curses.echo() # Allow echo
       stdscr.nodelay(False) # Block until input
@@ -1322,7 +1388,7 @@ def main(stdscr):
       stdscr.nodelay(True) # Reset to non-blocking
       
     
-    elif key == ord('p') and not termTooSmall and mode == 0: # Paint
+    elif compareKey(key, 'paint') and not termTooSmall and mode == 0: # Paint
       
       paintMenu.active = True
       
@@ -1336,7 +1402,7 @@ def main(stdscr):
       except:
         logging.debug('Key: Error (' + str(key) + ')') # Error
       
-      # Selected position
+      # Clamp
       
       selected = (
         max(min(selected[0], tableWindow.height - 3), 0),

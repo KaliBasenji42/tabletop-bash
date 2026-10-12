@@ -267,7 +267,7 @@ def broadcast(message): # Send message to all connections
         
         client[0].sendall((message + '\n').encode()) # Send
         
-        logging.debug('Broadcast: ' + message) # Logging
+        logging.debug('Broadcast:\n' + message) # Logging
         
       except Exception as e:
         
@@ -720,7 +720,7 @@ def clientThreadFunction(conn, addr):
         
         serverQueue.put((addrStr, message)) # Push to queue
         
-        logging.debug('Message from ' + addrStr + ': ' + message) # Logging
+        logging.debug('Message from ' + addrStr + ':\n' + message) # Logging
         
       
       # Process
